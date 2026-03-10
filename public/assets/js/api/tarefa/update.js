@@ -10,7 +10,7 @@ async function editarTarefa(idTarefa) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/api/tarefa/read.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/tarefa/read.php", { method: "POST" });
   const dados = await resposta.json();
 
 
@@ -38,7 +38,7 @@ async function salvarTarefa() {
   formulario.append("data_entrega", dataEntrega);
 
 
-  const resposta = await fetch("/owl-school/api/tarefa/update.php", {
+  const resposta = await fetch("/owl-school/src/api/tarefa/update.php", {
     method: "POST",
     body: formulario
   });

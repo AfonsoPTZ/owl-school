@@ -5,7 +5,7 @@ async function listarItensDaChamada(chamadaId) {
     formularioDados.append("chamada_id", chamadaId);
 
 
-    const resp = await fetch("/owl-school/api/chamada_item/read.php", {
+    const resp = await fetch("/owl-school/src/api/chamada_item/read.php", {
       method: "POST",
       body: formularioDados
     });

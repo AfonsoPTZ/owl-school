@@ -9,7 +9,7 @@ async function editarChamada(idChamada) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/api/chamada/read.php", { method: "POST"});
+  const resposta = await fetch("/owl-school/src/api/chamada/read.php", { method: "POST"});
 
   const dados = await resposta.json();
   const chamada = dados.chamadas.find(chamada => String(chamada.id) === String(idChamada));
@@ -29,7 +29,7 @@ async function salvarChamada() {
   formularioDados.append("data", data);
 
 
-  const resposta = await fetch("/owl-school/api/chamada/update.php", {
+  const resposta = await fetch("/owl-school/src/api/chamada/update.php", {
     method: "POST",
     body: formularioDados
 

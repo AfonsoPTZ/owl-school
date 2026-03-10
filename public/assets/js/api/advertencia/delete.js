@@ -11,7 +11,7 @@ async function excluirAdvertencia(id) {
   formularioDados.append("id", id);
 
 
-  const resposta = await fetch("/owl-school/api/advertencia/delete.php", {
+  const resposta = await fetch("/owl-school/src/api/advertencia/delete.php", {
     method: "POST",
     body: formularioDados
 

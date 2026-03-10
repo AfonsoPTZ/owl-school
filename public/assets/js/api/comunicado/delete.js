@@ -8,7 +8,7 @@ async function excluirComunicado(id) {
 
   formularioDados.append("id", id);
 
-  const resposta = await fetch("/owl-school/api/comunicado/delete.php", {
+  const resposta = await fetch("/owl-school/src/api/comunicado/delete.php", {
     method: "POST",
     body: formularioDados
 

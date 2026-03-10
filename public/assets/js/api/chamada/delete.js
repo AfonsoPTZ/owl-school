@@ -8,7 +8,7 @@ async function excluirChamada(id) {
 
   formularioDados.append("id", id);
 
-  const resposta = await fetch("/owl-school/api/chamada/delete.php", {
+  const resposta = await fetch("/owl-school/src/api/chamada/delete.php", {
     method: "POST",
     body: formularioDados
 

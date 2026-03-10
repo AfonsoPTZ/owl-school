@@ -9,7 +9,7 @@ async function editarComunicado(idComunicado) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/api/comunicado/read.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/comunicado/read.php", { method: "POST" });
 
   const dados = await resposta.json();
 
@@ -33,7 +33,7 @@ async function salvarComunicado() {
   formularioDados.append("corpo", corpo);
 
 
-  const resposta = await fetch("/owl-school/api/comunicado/update.php", {
+  const resposta = await fetch("/owl-school/src/api/comunicado/update.php", {
     method: "POST",
     body: formularioDados
 

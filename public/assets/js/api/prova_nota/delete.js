@@ -7,7 +7,7 @@ async function excluirNota(provaId, alunoId) {
   formularioDados.append("prova_id", provaId);
   formularioDados.append("aluno_id", alunoId);
 
-  const resposta = await fetch("/owl-school/api/prova_nota/delete.php", {
+  const resposta = await fetch("/owl-school/src/api/prova_nota/delete.php", {
     method: "POST",
     body: formularioDados
 

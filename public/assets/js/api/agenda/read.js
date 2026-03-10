@@ -1,7 +1,7 @@
 async function carregarAgenda() {
 
 
-  const response = await fetch("/owl-school/api/agenda/read.php", { method: "POST" });
+  const response = await fetch("/owl-school/src/api/agenda/read.php", { method: "POST" });
   const resultado = await response.json();
 
 

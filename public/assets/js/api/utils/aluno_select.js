@@ -1,6 +1,6 @@
 async function carregarListaAlunos() {
 
-  const resposta = await fetch("/owl-school/api/utils/aluno_select.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/utils/aluno_select.php", { method: "POST" });
 
   const dados = await resposta.json();
 

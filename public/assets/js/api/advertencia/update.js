@@ -10,7 +10,7 @@ async function abrirModalEditarAdvertencia(idAdvertencia) {
     modal.show();
 
 
-    const resposta = await fetch("/owl-school/api/advertencia/read.php", { method: "POST" });
+    const resposta = await fetch("/owl-school/src/api/advertencia/read.php", { method: "POST" });
 
     const dados = await resposta.json();
 
@@ -38,7 +38,7 @@ async function salvarAdvertencia() {
     formularioDados.append("descricao", descricao);
 
 
-    const resp = await fetch("/owl-school/api/advertencia/update.php", {
+    const resp = await fetch("/owl-school/src/api/advertencia/update.php", {
       method: "POST",
       body: formularioDados
 

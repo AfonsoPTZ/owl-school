@@ -11,7 +11,7 @@ async function excluirHorario(id) {
   formularioDados.append("id", id);
 
 
-  const resposta = await fetch("/owl-school/api/agenda/delete.php", {
+  const resposta = await fetch("/owl-school/src/api/agenda/delete.php", {
     method: "POST",
     body: formularioDados
 

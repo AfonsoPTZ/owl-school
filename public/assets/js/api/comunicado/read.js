@@ -1,7 +1,7 @@
 async function carregarComunicados() {
   
 
-    const resposta = await fetch("/owl-school/api/comunicado/read.php", { method: "POST" });
+    const resposta = await fetch("/owl-school/src/api/comunicado/read.php", { method: "POST" });
 
     const resultado = await resposta.json();
 

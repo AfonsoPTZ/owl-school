@@ -29,7 +29,7 @@ async function salvarEdicaoNota() {
   formularioDados.append("nota", nota);
 
 
-  const resposta = await fetch("/owl-school/api/prova_nota/update.php", {
+  const resposta = await fetch("/owl-school/src/api/prova_nota/update.php", {
     method: "POST",
     body: formularioDados
 

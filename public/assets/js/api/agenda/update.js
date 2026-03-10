@@ -30,7 +30,7 @@ async function salvarEdicaoHorario() {
   formulario.append("fim", fim);
   formulario.append("disciplina", disciplina);
 
-  const resposta = await fetch("/owl-school/api/agenda/update.php", {
+  const resposta = await fetch("/owl-school/src/api/agenda/update.php", {
     method: "POST",
     body: formulario
 

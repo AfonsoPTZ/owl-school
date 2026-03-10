@@ -26,7 +26,7 @@ async function salvarEdicaoChamadaItem() {
   formularioDados.append("status", status);
 
 
-  const resposta = await fetch("/owl-school/api/chamada_item/update.php", {
+  const resposta = await fetch("/owl-school/src/api/chamada_item/update.php", {
     method: "POST",
     body: formularioDados
 

@@ -1,6 +1,6 @@
 async function carregarFrequencias() {
 
-    const response = await fetch("/owl-school/api/utils/aluno/frequencia_aluno.php", { method: "POST" });
+    const response = await fetch("/owl-school/src/api/utils/aluno/frequencia_aluno.php", { method: "POST" });
     const resultado = await response.json();
 
 

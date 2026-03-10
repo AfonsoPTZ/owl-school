@@ -1,0 +1,183 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\Agenda;
+use App\Repositories\AgendaRepository;
+
+class AgendaController
+{
+    private AgendaRepository $repository;
+
+    public function __construct($conn)
+    {
+        $this->repository = new AgendaRepository($conn);
+    }
+
+    /* ============================== */
+    /* CREATE */
+    /* ============================== */
+    public function create()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Método inválido.'
+            ]);
+            return;
+        }
+
+        $diaSemana = $_POST['dia_semana'] ?? '';
+        $inicio = $_POST['inicio'] ?? '';
+        $fim = $_POST['fim'] ?? '';
+        $disciplina = $_POST['disciplina'] ?? '';
+
+        if (empty($diaSemana) || empty($inicio) || empty($fim) || empty($disciplina)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Todos os campos são obrigatórios.'
+            ]);
+            return;
+        }
+
+        $agenda = new Agenda($diaSemana, $inicio, $fim, $disciplina);
+
+        $criou = $this->repository->create($agenda);
+
+        if ($criou) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Horário criado com sucesso.',
+                'id' => $agenda->id
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao criar horário.'
+        ]);
+    }
+
+    /* ============================== */
+    /* READ */
+    /* ============================== */
+    public function read()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Método inválido.'
+            ]);
+            return;
+        }
+
+        $agendas = $this->repository->findAll();
+
+        // Organizar por dia da semana
+        $porDia = [
+            'segunda' => [],
+            'terca' => [],
+            'quarta' => [],
+            'quinta' => [],
+            'sexta' => []
+        ];
+
+        foreach ($agendas as $agenda) {
+            if (isset($porDia[$agenda['dia_semana']])) {
+                $porDia[$agenda['dia_semana']][] = $agenda;
+            }
+        }
+
+        echo json_encode([
+            'success' => true,
+            'agendas' => $agendas,
+            'por_dia' => $porDia,
+            'tipo_usuario' => $_SESSION['tipo_usuario'] ?? null
+        ]);
+    }
+
+    /* ============================== */
+    /* UPDATE */
+    /* ============================== */
+    public function update()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Método inválido.'
+            ]);
+            return;
+        }
+
+        $id = $_POST['id'] ?? '';
+        $diaSemana = $_POST['dia_semana'] ?? '';
+        $inicio = $_POST['inicio'] ?? '';
+        $fim = $_POST['fim'] ?? '';
+        $disciplina = $_POST['disciplina'] ?? '';
+
+        if (empty($id) || empty($diaSemana) || empty($inicio) || empty($fim) || empty($disciplina)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Todos os campos são obrigatórios.'
+            ]);
+            return;
+        }
+
+        $agenda = new Agenda($diaSemana, $inicio, $fim, $disciplina, (int)$id);
+
+        $atualizou = $this->repository->update($agenda);
+
+        if ($atualizou) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Horário atualizado com sucesso.'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao atualizar horário.'
+        ]);
+    }
+
+    /* ============================== */
+    /* DELETE */
+    /* ============================== */
+    public function delete()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Método inválido.'
+            ]);
+            return;
+        }
+
+        $id = $_POST['id'] ?? '';
+
+        if (empty($id)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'ID é obrigatório.'
+            ]);
+            return;
+        }
+
+        $deletou = $this->repository->delete((int)$id);
+
+        if ($deletou) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Horário deletado com sucesso.'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao deletar horário.'
+        ]);
+    }
+}

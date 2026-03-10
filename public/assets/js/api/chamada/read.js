@@ -1,7 +1,7 @@
 async function carregarChamadas() {
 
 
-    const response = await fetch("/owl-school/api/chamada/read.php", { method: "POST" });
+    const response = await fetch("/owl-school/src/api/chamada/read.php", { method: "POST" });
     const resultado = await response.json();
 
 

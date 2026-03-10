@@ -8,7 +8,7 @@ async function excluirTarefa(identificador) {
 
   formularioDados.append("id", identificador);
 
-  const resposta = await fetch("/owl-school/api/tarefa/delete.php", {
+  const resposta = await fetch("/owl-school/src/api/tarefa/delete.php", {
     method: "POST",
     body: formularioDados
 

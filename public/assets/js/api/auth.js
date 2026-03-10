@@ -14,7 +14,7 @@ document.getElementById("formLogin").onsubmit = async function (e) {
   formularioDados.append("email", email);
   formularioDados.append("senha", senha);
 
-  const resposta = await fetch("/owl-school/api/auth.php", {
+  const resposta = await fetch("/owl-school/src/api/auth.php", {
     method: "POST",
     body: formularioDados,
   });
