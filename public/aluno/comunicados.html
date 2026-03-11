@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>OlwSchool — Comunicados, Tarefas e Advertências</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <div id="navbar-container"></div>
+
+  <div class="flex-grow-1" style="margin-left: 220px;">
+    <main class="container py-4">
+
+      <!-- ============================== -->
+      <!-- Comunicados -->
+      <!-- ============================== -->
+      <h1 class="h5 mb-3">📢 Comunicados</h1>
+
+      <table class="table table-striped align-middle mb-5">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Corpo</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyComunicados"></tbody>
+      </table>
+
+      <!-- ============================== -->
+      <!-- Tarefas -->
+      <!-- ============================== -->
+      <h2 class="h5 mt-5 mb-3">🧾 Tarefas</h2>
+
+      <table class="table table-striped align-middle mb-5">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Entrega</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyTarefas"></tbody>
+      </table>
+
+      <!-- ============================== -->
+      <!-- Advertências -->
+      <!-- ============================== -->
+      <h2 class="h5 mt-5 mb-3">⚠️ Advertências</h2>
+
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyAdvertencias"></tbody>
+      </table>
+
+    </main>
+  </div>
+
+  <!-- ============================== -->
+  <!-- Scripts -->
+  <!-- ============================== -->
+  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
+  <script src="/owl-school/public/assets/api/auth/logout.js" defer></script>
+
+  <script src="/owl-school/public/assets/api/tarefa/read.js"></script>
+  <script src="/owl-school/public/assets/api/comunicado/read.js"></script>
+  <script src="/owl-school/public/assets/api/utils/aluno/advertencia_aluno.js"></script>
+
+  <script> protectPage(["aluno"]); </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="/owl-school/public/aluno/navbar.js"></script>
+
+</body>
+</html>
+

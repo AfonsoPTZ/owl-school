@@ -10,6 +10,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 use App\Controllers\AgendaController;
+use App\Middleware\AuthMiddleware;
+
+AuthMiddleware::requireLogin();
 
 $controller = new AgendaController($conn);
 $controller->create();

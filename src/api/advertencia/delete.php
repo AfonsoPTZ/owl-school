@@ -10,6 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 use App\Controllers\AdvertenciaController;
+use App\Middleware\AuthMiddleware;
+
+AuthMiddleware::requireLogin();
+AuthMiddleware::requireRole('admin');
 
 $controller = new AdvertenciaController($conn);
 $controller->delete();

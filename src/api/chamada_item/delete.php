@@ -10,6 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 use App\Controllers\ChamadaItemController;
+use App\Middleware\AuthMiddleware;
+
+AuthMiddleware::requireLogin();
+AuthMiddleware::requireRole('professor');
 
 $controller = new ChamadaItemController($conn);
 $controller->delete();

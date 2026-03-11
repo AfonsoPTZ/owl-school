@@ -10,6 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 use App\Controllers\ProvaController;
+use App\Middleware\AuthMiddleware;
+
+AuthMiddleware::requireLogin();
+AuthMiddleware::requireRole('professor');
 
 $controller = new ProvaController($conn);
 $controller->create();
