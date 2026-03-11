@@ -2,14 +2,28 @@
 
 namespace App\Services;
 
+use App\Validators\ChamadaItemValidator;
+
 class ChamadaItemService
 {
+    private ChamadaItemValidator $validator;
+
+    public function __construct()
+    {
+        $this->validator = new ChamadaItemValidator();
+    }
+
     public function validarCreate(array $dados): array
     {
         if (empty($dados['chamada_id'] ?? '') || empty($dados['aluno_id'] ?? '') || empty(trim($dados['status'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $chamada_id = $dados['chamada_id'];
+        $aluno_id = $dados['aluno_id'];
+        $status = $dados['status'];
+
+        return $this->validator->validateCreate($chamada_id, $aluno_id, $status);
     }
 
     public function validarDelete(array $dados): array
@@ -25,6 +39,11 @@ class ChamadaItemService
         if (empty($dados['chamada_id'] ?? '') || empty($dados['aluno_id'] ?? '') || empty(trim($dados['status'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $chamada_id = $dados['chamada_id'];
+        $aluno_id = $dados['aluno_id'];
+        $status = $dados['status'];
+
+        return $this->validator->validateCreate($chamada_id, $aluno_id, $status);
     }
 }

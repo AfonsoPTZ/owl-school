@@ -2,14 +2,27 @@
 
 namespace App\Services;
 
+use App\Validators\ProvaValidator;
+
 class ProvaService
 {
+    private ProvaValidator $validator;
+
+    public function __construct()
+    {
+        $this->validator = new ProvaValidator();
+    }
+
     public function validarCreate(array $dados): array
     {
         if (empty(trim($dados['titulo'] ?? '')) || empty(trim($dados['data'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $titulo = $dados['titulo'];
+        $data = $dados['data'];
+
+        return $this->validator->validateCreate($titulo, $data);
     }
 
     public function validarDelete(array $dados): array
@@ -28,6 +41,10 @@ class ProvaService
         if (empty(trim($dados['titulo'] ?? '')) || empty(trim($dados['data'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $titulo = $dados['titulo'];
+        $data = $dados['data'];
+
+        return $this->validator->validateCreate($titulo, $data);
     }
 }

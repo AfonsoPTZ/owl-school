@@ -2,14 +2,26 @@
 
 namespace App\Services;
 
+use App\Validators\ChamadaValidator;
+
 class ChamadaService
 {
+    private ChamadaValidator $validator;
+
+    public function __construct()
+    {
+        $this->validator = new ChamadaValidator();
+    }
+
     public function validarCreate(array $dados): array
     {
         if (empty(trim($dados['data'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $data = $dados['data'];
+
+        return $this->validator->validateCreate($data);
     }
 
     public function validarDelete(array $dados): array
@@ -28,6 +40,9 @@ class ChamadaService
         if (empty(trim($dados['data'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $data = $dados['data'];
+
+        return $this->validator->validateCreate($data);
     }
 }

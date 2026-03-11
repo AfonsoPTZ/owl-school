@@ -2,14 +2,27 @@
 
 namespace App\Services;
 
+use App\Validators\AdvertenciaValidator;
+
 class AdvertenciaService
 {
+    private AdvertenciaValidator $validator;
+
+    public function __construct()
+    {
+        $this->validator = new AdvertenciaValidator();
+    }
+
     public function validarCreate(array $dados): array
     {
         if (empty(trim($dados['titulo'] ?? '')) || empty(trim($dados['descricao'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $titulo = $dados['titulo'];
+        $descricao = $dados['descricao'];
+
+        return $this->validator->validateCreate($titulo, $descricao);
     }
 
     public function validarDelete(array $dados): array
@@ -28,6 +41,10 @@ class AdvertenciaService
         if (empty(trim($dados['titulo'] ?? '')) || empty(trim($dados['descricao'] ?? ''))) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
-        return ["success" => true];
+
+        $titulo = $dados['titulo'];
+        $descricao = $dados['descricao'];
+
+        return $this->validator->validateCreate($titulo, $descricao);
     }
 }
