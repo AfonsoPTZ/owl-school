@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../db/conexao.php';
+require_once __DIR__ . '/../../db/conexao.php';
 
 use App\Controllers\TarefaController;
 use App\Middleware\AuthMiddleware;
@@ -9,10 +8,14 @@ use App\Middleware\AuthMiddleware;
 header('Content-Type: application/json');
 
 AuthMiddleware::requireLogin();
-AuthMiddleware::requireRole('professor');
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+if ($method !== 'GET') {
+    AuthMiddleware::requireRole('professor');
+}
 
 $controller = new TarefaController($conn);
-$method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
 

@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../db/conexao.php';
+require_once __DIR__ . '/../../db/conexao.php';
 
 use App\Controllers\AdvertenciaController;
 use App\Middleware\AuthMiddleware;

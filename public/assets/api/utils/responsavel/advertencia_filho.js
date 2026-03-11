@@ -1,6 +1,6 @@
 async function carregarAdvertencias() {
 
-    const response = await fetch("/owl-school/src/api/utils/responsavel/advertencia_filho.php", { method: "POST" });
+    const response = await fetch("/owl-school/src/api/utils/responsavel/index.php?action=getAdvertenciasFilho", { method: "POST" });
     const resultado = await response.json();
 
 

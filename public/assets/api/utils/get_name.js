@@ -1,6 +1,6 @@
 async function carregarNomeUsuario() {
 
-  const resposta = await fetch("/owl-school/src/api/utils/get_name.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/utils/index.php?action=getName", { method: "POST" });
 
   const resultado = await resposta.json();
 
