@@ -1,10 +1,12 @@
 async function carregarTarefas() {
 
+    const user = await getSessionUser();
+
     const response = await fetch("/owl-school/src/api/tarefa/read.php", { method: "POST" });
     const resultado = await response.json();
 
+    const tipoUsuario = user.tipo_usuario;
 
-    const tipoUsuario = resultado.tipo_usuario; 
     const corpoTabela = document.getElementById("tbodyTarefas");
     corpoTabela.innerHTML = "";
 
