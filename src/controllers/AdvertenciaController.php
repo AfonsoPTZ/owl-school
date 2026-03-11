@@ -29,18 +29,19 @@ class AdvertenciaController
 
         $titulo = $_POST['titulo'] ?? '';
         $descricao = $_POST['descricao'] ?? '';
+        $aluno_id = $_POST['aluno_id'] ?? '';
 
-        if (empty($titulo) || empty($descricao)) {
+        if (empty($titulo) || empty($descricao) || empty($aluno_id)) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Título e descrição são obrigatórios.'
+                'message' => 'Título, descrição e aluno são obrigatórios.'
             ]);
             return;
         }
 
         $advertencia = new Advertencia($titulo, $descricao);
 
-        $criou = $this->repository->create($advertencia);
+        $criou = $this->repository->createWithAluno($advertencia, (int)$aluno_id);
 
         if ($criou) {
             echo json_encode([

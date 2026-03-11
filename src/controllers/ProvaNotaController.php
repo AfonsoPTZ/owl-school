@@ -82,8 +82,11 @@ class ProvaNotaController
 
         $notas = $this->repository->findByProva((int)$provaId);
 
+        $titulo_prova = !empty($notas) ? $notas[0]['titulo_prova'] : 'Prova';
+
         echo json_encode([
             'success' => true,
+            'titulo_prova' => $titulo_prova,
             'notas' => $notas,
             'tipo_usuario' => $_SESSION['tipo_usuario'] ?? null
         ]);

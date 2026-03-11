@@ -58,16 +58,30 @@ class ProvaNotaRepository
     /* ============================== */
     public function findByProva(int $provaId): array
     {
+        // Buscar o título da prova
+        $stmtProva = $this->conn->prepare("SELECT titulo FROM prova WHERE id = ?");
+        $stmtProva->bind_param("i", $provaId);
+        $stmtProva->execute();
+        $resultProva = $stmtProva->get_result();
+        $titulo_prova = '';
+        
+        if ($row = $resultProva->fetch_assoc()) {
+            $titulo_prova = $row['titulo'];
+        }
+        $stmtProva->close();
+
+        // Buscar todos os alunos com suas notas (LEFT JOIN para mostrar alunos sem nota também)
         $stmt = $this->conn->prepare(
             "SELECT
-                prova_nota.prova_id,
-                prova_nota.aluno_id,
+                aluno.usuario_id AS aluno_id,
                 usuario.nome AS aluno_nome,
                 prova_nota.nota
-            FROM prova_nota
+            FROM aluno
             JOIN usuario
-                ON usuario.id = prova_nota.aluno_id
-            WHERE prova_nota.prova_id = ?
+                ON usuario.id = aluno.usuario_id
+            LEFT JOIN prova_nota
+                ON prova_nota.aluno_id = aluno.usuario_id
+                AND prova_nota.prova_id = ?
             ORDER BY usuario.nome"
         );
 
@@ -78,6 +92,7 @@ class ProvaNotaRepository
         $notas = [];
 
         while ($linha = $resultado->fetch_assoc()) {
+            $linha['titulo_prova'] = $titulo_prova;
             $notas[] = $linha;
         }
 

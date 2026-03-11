@@ -14,9 +14,9 @@ class AdvertenciaRepository
     }
 
     /* ============================== */
-    /* CREATE */
+    /* CREATE  */
     /* ============================== */
-    public function create(Advertencia $advertencia): bool
+    public function createWithAluno(Advertencia $advertencia, int $aluno_id): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO advertencia (titulo, descricao) VALUES (?, ?)"
@@ -32,8 +32,23 @@ class AdvertenciaRepository
 
         if ($executou && $stmt->affected_rows > 0) {
             $advertencia->id = $this->conn->insert_id;
+
+            // Inserir a relação na tabela aluno_advertencia
+            $stmt_relacao = $this->conn->prepare(
+                "INSERT INTO aluno_advertencia (advertencia_id, aluno_id) VALUES (?, ?)"
+            );
+
+            $stmt_relacao->bind_param(
+                "ii",
+                $advertencia->id,
+                $aluno_id
+            );
+
+            $relacao_executou = $stmt_relacao->execute();
+            $stmt_relacao->close();
+
             $stmt->close();
-            return true;
+            return $relacao_executou;
         }
 
         $stmt->close();
