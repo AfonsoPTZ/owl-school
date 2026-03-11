@@ -2,222 +2,154 @@
 
 namespace App\Controllers;
 
-use App\Models\Tarefa;
-use App\Repositories\TarefaRepository;
+use App\DTOs\TarefaDTO;
 use App\Services\TarefaService;
 use App\Utils\Logger;
 
 class TarefaController
 {
-    private TarefaRepository $repository;
     private TarefaService $service;
 
     public function __construct($conn)
     {
-        $this->repository = new TarefaRepository($conn);
-        $this->service = new TarefaService();
+        $this->service = new TarefaService($conn);
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
-    public function create()
+    public function create(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Logger::warning('Invalid method in create');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid method.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('POST', 'create');
 
-            $validacao = $this->service->validarCreate($_POST);
-            if (!$validacao['success']) {
+            $dto = new TarefaDTO($_POST);
+
+            $result = $this->service->create($dto);
+
+            if (!$result['success']) {
                 Logger::warning('Validation failed in create');
-                echo json_encode($validacao);
+                $this->json($result, 422);
                 return;
             }
 
-            $titulo       = $_POST['titulo'];
-            $descricao    = $_POST['descricao'];
-            $data_entrega = $_POST['data_entrega'];
-
-            $tarefa = new Tarefa(
-                $titulo,
-                $descricao,
-                $data_entrega
-            );
-
-            $criou = $this->repository->create($tarefa);
-
-            if ($criou) {
-                Logger::info("Task created: $titulo");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Task created successfully.'
-                ]);
-                return;
-            }
-
-            Logger::error("Failed to create task: $titulo");
-            echo json_encode([
-                'success' => false,
-                'message' => 'Error creating task.'
-            ]);
+            Logger::info("Task created: {$dto->titulo}");
+            $this->json([
+                'success' => true,
+                'message' => 'Task created successfully.'
+            ], 201);
         } catch (\Exception $e) {
-            Logger::error("Exception in create: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'create');
         }
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
-    public function delete()
+    public function index(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
-                Logger::warning('Invalid method in delete');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid method.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('GET', 'index');
 
-            $validacao = $this->service->validarDelete($_POST);
-            if (!$validacao['success']) {
-                Logger::warning('Validation failed in delete');
-                echo json_encode($validacao);
-                return;
-            }
+            $result = $this->service->findAll();
 
-            $deletou = $this->repository->delete((int) $_POST['id']);
+            Logger::info('Tasks listed: ' . count($result['tarefas']) . ' found');
 
-            if ($deletou) {
-                Logger::info("Task deleted: ID " . $_POST['id']);
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Task deleted successfully.'
-                ]);
-                return;
-            }
-
-            Logger::warning('Task not found for delete: ID ' . $_POST['id']);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Task not found.'
-            ]);
-        } catch (\Exception $e) {
-            Logger::error("Exception in delete: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
-        }
-    }
-
-    /* ============================== */
-    /* READ / INDEX */
-    /* ============================== */
-    public function index()
-    {
-        try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-                Logger::warning('Invalid method in index');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid method.'
-                ]);
-                return;
-            }
-
-            $tarefas = $this->repository->findAll();
-            Logger::info("Tasks listed: " . count($tarefas) . " found");
-
-            echo json_encode([
+            $this->json([
                 'success'      => true,
-                'tarefas'      => $tarefas,
+                'tarefas'      => $result['tarefas'],
                 'tipo_usuario' => $_SESSION['tipo_usuario'] ?? null
             ]);
         } catch (\Exception $e) {
-            Logger::error("Exception in index: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'index');
         }
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
-    public function update()
+    public function update(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-                Logger::warning('Invalid method in update');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid method.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('PUT', 'update');
 
-            $validacao = $this->service->validarUpdate($_POST);
-            if (!$validacao['success']) {
+            $dto = new TarefaDTO($_POST);
+
+            $result = $this->service->update($dto);
+
+            if (!$result['success']) {
                 Logger::warning('Validation failed in update');
-                echo json_encode($validacao);
+                $status = $result['message'] === 'Task not found.' ? 404 : 422;
+                $this->json($result, $status);
                 return;
             }
 
-            $id           = $_POST['id'];
-            $titulo       = $_POST['titulo'];
-            $descricao    = $_POST['descricao'];
-            $data_entrega = $_POST['data_entrega'];
-
-            $tarefa = new Tarefa(
-                $titulo,
-                $descricao,
-                $data_entrega,
-                (int) $id
-            );
-
-            $atualizou = $this->repository->update($tarefa);
-
-            if ($atualizou) {
-                Logger::info("Task updated: ID $id");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Task updated successfully.'
-                ]);
-                return;
-            }
-
-            Logger::warning("Task not found for update: ID $id");
-            echo json_encode([
-                'success' => false,
-                'message' => 'Task not found.'
+            Logger::info("Task updated: ID {$dto->id}");
+            $this->json([
+                'success' => true,
+                'message' => 'Task updated successfully.'
             ]);
         } catch (\Exception $e) {
-            Logger::error("Exception in update: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'update');
         }
+    }
+
+    public function delete(): void
+    {
+        try {
+            $this->ensureMethod('DELETE', 'delete');
+
+            $dto = new TarefaDTO($_POST);
+
+            $result = $this->service->delete($dto);
+
+            if (!$result['success']) {
+                Logger::warning('Validation failed in delete');
+                $status = $result['message'] === 'Task not found.' ? 404 : 422;
+                $this->json($result, $status);
+                return;
+            }
+
+            Logger::info("Task deleted: ID {$dto->id}");
+            $this->json([
+                'success' => true,
+                'message' => 'Task deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            $this->handleException($e, 'delete');
+        }
+    }
+
+    private function ensureMethod(string $expectedMethod, string $action): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== $expectedMethod) {
+            Logger::warning("Invalid method in {$action}");
+
+            $this->json([
+                'success' => false,
+                'message' => 'Invalid method.'
+            ], 405);
+
+            exit;
+        }
+    }
+
+    private function getInputData(): array
+    {
+        $rawInput = file_get_contents('php://input');
+        $data = [];
+
+        if (!empty($rawInput)) {
+            parse_str($rawInput, $data);
+        }
+
+        return $data;
+    }
+
+    private function json(array $data, int $statusCode = 200): void
+    {
+        http_response_code($statusCode);
+        echo json_encode($data);
+    }
+
+    private function handleException(\Exception $e, string $action): void
+    {
+        Logger::error("Exception in {$action}: " . $e->getMessage());
+
+        $this->json([
+            'success' => false,
+            'message' => 'Server error.'
+        ], 500);
     }
 }

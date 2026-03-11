@@ -2,198 +2,154 @@
 
 namespace App\Controllers;
 
-use App\Models\Prova;
-use App\Repositories\ProvaRepository;
+use App\DTOs\ProvaDTO;
 use App\Services\ProvaService;
 use App\Utils\Logger;
 
 class ProvaController
 {
-    private ProvaRepository $repository;
     private ProvaService $service;
 
     public function __construct($conn)
     {
-        $this->repository = new ProvaRepository($conn);
-        $this->service = new ProvaService();
+        $this->service = new ProvaService($conn);
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
-    public function create()
+    public function create(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Logger::warning('Invalid method in create');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Método inválido.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('POST', 'create');
 
-            $validacao = $this->service->validarCreate($_POST);
-            if (!$validacao['success']) {
+            $dto = new ProvaDTO($_POST);
+
+            $result = $this->service->create($dto);
+
+            if (!$result['success']) {
                 Logger::warning('Validation failed in create');
-                echo json_encode($validacao);
+                $this->json($result, 422);
                 return;
             }
 
-            $titulo = $_POST['titulo'];
-            $data = $_POST['data'];
-
-            $prova = new Prova($titulo, $data);
-
-            $criou = $this->repository->create($prova);
-
-            if ($criou) {
-                Logger::info("Test created: $titulo on $data");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Prova criada com sucesso.',
-                    'id' => $prova->id
-                ]);
-                return;
-            }
-
-            Logger::error("Failed to create test: $titulo");
-            echo json_encode([
-                'success' => false,
-                'message' => 'Erro ao criar prova.'
-            ]);
+            Logger::info("Test created: {$dto->titulo}");
+            $this->json([
+                'success' => true,
+                'message' => 'Prova criada com sucesso.'
+            ], 201);
         } catch (\Exception $e) {
-            Logger::error("Exception in create: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'create');
         }
     }
 
-    /* ============================== */
-    /* READ */
-    /* ============================== */
-    public function index()
+    public function index(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-                Logger::warning('Invalid method in index');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Método inválido.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('GET', 'index');
 
-            $provas = $this->repository->findAll();
+            $result = $this->service->findAll();
 
-            Logger::info("Tests listed: " . count($provas) . " found");
-            echo json_encode([
-                'success' => true,
-                'provas' => $provas,
+            Logger::info('Tests listed: ' . count($result['provas']) . ' found');
+
+            $this->json([
+                'success'      => true,
+                'provas'       => $result['provas'],
                 'tipo_usuario' => $_SESSION['tipo_usuario'] ?? null
             ]);
         } catch (\Exception $e) {
-            Logger::error("Exception in index: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'index');
         }
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
-    public function update()
+    public function update(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-                Logger::warning('Invalid method in update');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Método inválido.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('PUT', 'update');
 
-            $validacao = $this->service->validarUpdate($_POST);
-            if (!$validacao['success']) {
+            $dto = new ProvaDTO($_POST);
+
+            $result = $this->service->update($dto);
+
+            if (!$result['success']) {
                 Logger::warning('Validation failed in update');
-                echo json_encode($validacao);
+                $status = $result['message'] === 'Prova not found.' ? 404 : 422;
+                $this->json($result, $status);
                 return;
             }
 
-            $id = $_POST['id'];
-            $titulo = $_POST['titulo'];
-            $data = $_POST['data'];
-
-            $prova = new Prova($titulo, $data, (int)$id);
-
-            $atualizou = $this->repository->update($prova);
-
-            if ($atualizou) {
-                Logger::info("Test updated: ID $id");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Prova atualizada com sucesso.'
-                ]);
-                return;
-            }
-
-            Logger::warning('Test not found for update: ID ' . $id);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Erro ao atualizar prova.'
+            Logger::info("Test updated: ID {$dto->id}");
+            $this->json([
+                'success' => true,
+                'message' => 'Prova atualizada com sucesso.'
             ]);
         } catch (\Exception $e) {
-            Logger::error("Exception in update: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'update');
         }
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
-    public function delete()
+    public function delete(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Método inválido.'
-            ]);
-            return;
-        }
+        try {
+            $this->ensureMethod('DELETE', 'delete');
 
-        $validacao = $this->service->validarDelete($_POST);
-        if (!$validacao['success']) {
-            echo json_encode($validacao);
-            return;
-        }
+            $dto = new ProvaDTO($_POST);
 
-        $deletou = $this->repository->delete((int) $_POST['id']);
+            $result = $this->service->delete($dto);
 
-        if ($deletou) {
-            echo json_encode([
+            if (!$result['success']) {
+                Logger::warning('Validation failed in delete');
+                $status = $result['message'] === 'Prova not found.' ? 404 : 422;
+                $this->json($result, $status);
+                return;
+            }
+
+            Logger::info("Test deleted: ID {$dto->id}");
+            $this->json([
                 'success' => true,
                 'message' => 'Prova deletada com sucesso.'
             ]);
-            return;
+        } catch (\Exception $e) {
+            $this->handleException($e, 'delete');
+        }
+    }
+
+    private function ensureMethod(string $expectedMethod, string $action): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== $expectedMethod) {
+            Logger::warning("Invalid method in {$action}");
+
+            $this->json([
+                'success' => false,
+                'message' => 'Invalid method.'
+            ], 405);
+
+            exit;
+        }
+    }
+
+    private function getInputData(): array
+    {
+        $rawInput = file_get_contents('php://input');
+        $data = [];
+
+        if (!empty($rawInput)) {
+            parse_str($rawInput, $data);
         }
 
-        echo json_encode([
+        return $data;
+    }
+
+    private function json(array $data, int $statusCode = 200): void
+    {
+        http_response_code($statusCode);
+        echo json_encode($data);
+    }
+
+    private function handleException(\Exception $e, string $action): void
+    {
+        Logger::error("Exception in {$action}: " . $e->getMessage());
+
+        $this->json([
             'success' => false,
-            'message' => 'Erro ao deletar prova.'
-        ]);
+            'message' => 'Server error.'
+        ], 500);
     }
 }

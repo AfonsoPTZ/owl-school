@@ -2,20 +2,17 @@
 
 namespace App\Controllers;
 
-use App\Models\Advertencia;
-use App\Repositories\AdvertenciaRepository;
 use App\Services\AdvertenciaService;
 use App\Utils\Logger;
+use App\DTOs\AdvertenciaDTO;
 
 class AdvertenciaController
 {
-    private AdvertenciaRepository $repository;
     private AdvertenciaService $service;
 
     public function __construct($conn)
     {
-        $this->repository = new AdvertenciaRepository($conn);
-        $this->service = new AdvertenciaService();
+        $this->service = new AdvertenciaService($conn);
     }
 
     /* ============================== */
@@ -33,36 +30,10 @@ class AdvertenciaController
                 return;
             }
 
-            $validacao = $this->service->validarCreate($_POST);
-            if (!$validacao['success']) {
-                Logger::warning('Validation failed in create');
-                echo json_encode($validacao);
-                return;
-            }
+            $dto = new AdvertenciaDTO($_POST);
 
-            $titulo = $_POST['titulo'];
-            $descricao = $_POST['descricao'];
-            $aluno_id = $_POST['aluno_id'];
-
-            $advertencia = new Advertencia($titulo, $descricao);
-
-            $criou = $this->repository->createWithAluno($advertencia, (int)$aluno_id);
-
-            if ($criou) {
-                Logger::info("Warning created: $titulo for student $aluno_id");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Advertência criada com sucesso.',
-                    'id' => $advertencia->id
-                ]);
-                return;
-            }
-
-            Logger::error("Failed to create warning: $titulo");
-            echo json_encode([
-                'success' => false,
-                'message' => 'Erro ao criar advertência.'
-            ]);
+            $result = $this->service->create($dto);
+            echo json_encode($result);
         } catch (\Exception $e) {
             Logger::error("Exception in create: " . $e->getMessage());
             
@@ -89,14 +60,8 @@ class AdvertenciaController
                 return;
             }
 
-            $advertencias = $this->repository->findAll();
-
-            Logger::info("Warnings listed: " . count($advertencias) . " found");
-            echo json_encode([
-                'success' => true,
-                'advertencias' => $advertencias,
-                'tipo_usuario' => $_SESSION['tipo_usuario'] ?? null
-            ]);
+            $result = $this->service->findAll();
+            echo json_encode($result);
         } catch (\Exception $e) {
             Logger::error("Exception in index: " . $e->getMessage());
             
@@ -123,35 +88,10 @@ class AdvertenciaController
                 return;
             }
 
-            $validacao = $this->service->validarUpdate($_POST);
-            if (!$validacao['success']) {
-                Logger::warning('Validation failed in update');
-                echo json_encode($validacao);
-                return;
-            }
+            $dto = new AdvertenciaDTO($_POST);
 
-            $id = $_POST['id'];
-            $titulo = $_POST['titulo'];
-            $descricao = $_POST['descricao'];
-
-            $advertencia = new Advertencia($titulo, $descricao, (int)$id);
-
-            $atualizou = $this->repository->update($advertencia);
-
-            if ($atualizou) {
-                Logger::info("Warning updated: ID $id");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Advertência atualizada com sucesso.'
-                ]);
-                return;
-            }
-
-            Logger::warning('Warning not found for update: ID ' . $id);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Erro ao atualizar advertência.'
-            ]);
+            $result = $this->service->update($dto);
+            echo json_encode($result);
         } catch (\Exception $e) {
             Logger::error("Exception in update: " . $e->getMessage());
             
@@ -168,33 +108,28 @@ class AdvertenciaController
     /* ============================== */
     public function delete()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
+                Logger::warning('Invalid method in delete');
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Método inválido.'
+                ]);
+                return;
+            }
+
+            $dto = new AdvertenciaDTO($_POST);
+
+            $result = $this->service->delete($dto);
+            echo json_encode($result);
+        } catch (\Exception $e) {
+            Logger::error("Exception in delete: " . $e->getMessage());
+            
+            http_response_code(500);
             echo json_encode([
                 'success' => false,
-                'message' => 'Método inválido.'
+                'message' => 'Server error.'
             ]);
-            return;
         }
-
-        $validacao = $this->service->validarDelete($_POST);
-        if (!$validacao['success']) {
-            echo json_encode($validacao);
-            return;
-        }
-
-        $deletou = $this->repository->delete((int) $_POST['id']);
-
-        if ($deletou) {
-            echo json_encode([
-                'success' => true,
-                'message' => 'Advertência deletada com sucesso.'
-            ]);
-            return;
-        }
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Erro ao deletar advertência.'
-        ]);
     }
 }

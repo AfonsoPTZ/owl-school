@@ -2,198 +2,154 @@
 
 namespace App\Controllers;
 
-use App\Models\Comunicado;
-use App\Repositories\ComunicadoRepository;
+use App\DTOs\ComunicadoDTO;
 use App\Services\ComunicadoService;
 use App\Utils\Logger;
 
 class ComunicadoController
 {
-    private ComunicadoRepository $repository;
     private ComunicadoService $service;
 
     public function __construct($conn)
     {
-        $this->repository = new ComunicadoRepository($conn);
-        $this->service = new ComunicadoService();
+        $this->service = new ComunicadoService($conn);
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
-    public function create()
+    public function create(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Logger::warning('Invalid method in create');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Método inválido.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('POST', 'create');
 
-            $validacao = $this->service->validarCreate($_POST);
-            if (!$validacao['success']) {
+            $dto = new ComunicadoDTO($_POST);
+
+            $result = $this->service->create($dto);
+
+            if (!$result['success']) {
                 Logger::warning('Validation failed in create');
-                echo json_encode($validacao);
+                $this->json($result, 422);
                 return;
             }
 
-            $titulo = $_POST['titulo'];
-            $corpo = $_POST['corpo'];
-
-            $comunicado = new Comunicado($titulo, $corpo);
-
-            $criou = $this->repository->create($comunicado);
-
-            if ($criou) {
-                Logger::info("Notice created: $titulo");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Comunicado criado com sucesso.',
-                    'id' => $comunicado->id
-                ]);
-                return;
-            }
-
-            Logger::error("Failed to create notice: $titulo");
-            echo json_encode([
-                'success' => false,
-                'message' => 'Erro ao criar comunicado.'
-            ]);
+            Logger::info("Notice created: {$dto->titulo}");
+            $this->json([
+                'success' => true,
+                'message' => 'Comunicado criado com sucesso.'
+            ], 201);
         } catch (\Exception $e) {
-            Logger::error("Exception in create: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'create');
         }
     }
 
-    /* ============================== */
-    /* READ */
-    /* ============================== */
-    public function index()
+    public function index(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-                Logger::warning('Invalid method in index');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Método inválido.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('GET', 'index');
 
-            $comunicados = $this->repository->findAll();
+            $result = $this->service->findAll();
 
-            Logger::info("Notices listed: " . count($comunicados) . " found");
-            echo json_encode([
+            Logger::info('Notices listed: ' . count($result['comunicados']) . ' found');
+
+            $this->json([
                 'success' => true,
-                'comunicados' => $comunicados,
+                'comunicados' => $result['comunicados'],
                 'tipo_usuario' => $_SESSION['tipo_usuario'] ?? null
             ]);
         } catch (\Exception $e) {
-            Logger::error("Exception in index: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'index');
         }
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
-    public function update()
+    public function update(): void
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-                Logger::warning('Invalid method in update');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Método inválido.'
-                ]);
-                return;
-            }
+            $this->ensureMethod('PUT', 'update');
 
-            $validacao = $this->service->validarUpdate($_POST);
-            if (!$validacao['success']) {
+            $dto = new ComunicadoDTO($_POST);
+
+            $result = $this->service->update($dto);
+
+            if (!$result['success']) {
                 Logger::warning('Validation failed in update');
-                echo json_encode($validacao);
+                $status = $result['message'] === 'Comunicado not found.' ? 404 : 422;
+                $this->json($result, $status);
                 return;
             }
 
-            $id = $_POST['id'];
-            $titulo = $_POST['titulo'];
-            $corpo = $_POST['corpo'];
-
-            $comunicado = new Comunicado($titulo, $corpo, (int)$id);
-
-            $atualizou = $this->repository->update($comunicado);
-
-            if ($atualizou) {
-                Logger::info("Notice updated: ID $id");
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Comunicado atualizado com sucesso.'
-                ]);
-                return;
-            }
-
-            Logger::warning('Notice not found for update: ID ' . $id);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Erro ao atualizar comunicado.'
+            Logger::info("Notice updated: ID {$dto->id}");
+            $this->json([
+                'success' => true,
+                'message' => 'Comunicado atualizado com sucesso.'
             ]);
         } catch (\Exception $e) {
-            Logger::error("Exception in update: " . $e->getMessage());
-            
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error.'
-            ]);
+            $this->handleException($e, 'update');
         }
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
-    public function delete()
+    public function delete(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Método inválido.'
-            ]);
-            return;
-        }
+        try {
+            $this->ensureMethod('DELETE', 'delete');
 
-        $validacao = $this->service->validarDelete($_POST);
-        if (!$validacao['success']) {
-            echo json_encode($validacao);
-            return;
-        }
+            $dto = new ComunicadoDTO($_POST);
 
-        $deletou = $this->repository->delete((int) $_POST['id']);
+            $result = $this->service->delete($dto);
 
-        if ($deletou) {
-            echo json_encode([
+            if (!$result['success']) {
+                Logger::warning('Validation failed in delete');
+                $status = $result['message'] === 'Comunicado not found.' ? 404 : 422;
+                $this->json($result, $status);
+                return;
+            }
+
+            Logger::info("Notice deleted: ID {$dto->id}");
+            $this->json([
                 'success' => true,
                 'message' => 'Comunicado deletado com sucesso.'
             ]);
-            return;
+        } catch (\Exception $e) {
+            $this->handleException($e, 'delete');
+        }
+    }
+
+    private function ensureMethod(string $expectedMethod, string $action): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== $expectedMethod) {
+            Logger::warning("Invalid method in {$action}");
+
+            $this->json([
+                'success' => false,
+                'message' => 'Invalid method.'
+            ], 405);
+
+            exit;
+        }
+    }
+
+    private function getInputData(): array
+    {
+        $rawInput = file_get_contents('php://input');
+        $data = [];
+
+        if (!empty($rawInput)) {
+            parse_str($rawInput, $data);
         }
 
-        echo json_encode([
+        return $data;
+    }
+
+    private function json(array $data, int $statusCode = 200): void
+    {
+        http_response_code($statusCode);
+        echo json_encode($data);
+    }
+
+    private function handleException(\Exception $e, string $action): void
+    {
+        Logger::error("Exception in {$action}: " . $e->getMessage());
+
+        $this->json([
             'success' => false,
-            'message' => 'Erro ao deletar comunicado.'
-        ]);
+            'message' => 'Server error.'
+        ], 500);
     }
 }

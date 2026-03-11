@@ -3,50 +3,140 @@
 namespace App\Services;
 
 use App\Validators\TarefaValidator;
+use App\DTOs\TarefaDTO;
+use App\Models\Tarefa;
+use App\Repositories\TarefaRepository;
 
 class TarefaService
 {
     private TarefaValidator $validator;
+    private TarefaRepository $repository;
 
-    public function __construct()
+    public function __construct($conn)
     {
         $this->validator = new TarefaValidator();
+        $this->repository = new TarefaRepository($conn);
     }
 
-    public function validarCreate(array $dados): array
+    public function create(TarefaDTO $dto): array
     {
-        if (empty(trim($dados['titulo'] ?? '')) || empty(trim($dados['descricao'] ?? '')) || empty(trim($dados['data_entrega'] ?? ''))) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
+        if (empty($dto->titulo) || empty($dto->descricao) || empty($dto->data_entrega)) {
+            return [
+                "success" => false,
+                "message" => "Fill in all required fields."
+            ];
         }
 
-        $titulo = $dados['titulo'];
-        $descricao = $dados['descricao'];
-        $data_entrega = $dados['data_entrega'];
+        $validacao = $this->validator->validateCreate(
+            $dto->titulo,
+            $dto->descricao,
+            $dto->data_entrega
+        );
 
-        return $this->validator->validateCreate($titulo, $descricao, $data_entrega);
+        if (!$validacao["success"]) {
+            return $validacao;
+        }
+
+        $tarefa = new Tarefa(
+            $dto->titulo,
+            $dto->descricao,
+            $dto->data_entrega
+        );
+
+        $criou = $this->repository->create($tarefa);
+
+        if (!$criou) {
+            return [
+                "success" => false,
+                "message" => "Error creating task."
+            ];
+        }
+
+        return [
+            "success" => true,
+            "message" => "Task created successfully."
+        ];
     }
 
-    public function validarDelete(array $dados): array
+    public function delete(TarefaDTO $dto): array
     {
-        if (!isset($dados['id']) || empty($dados['id'])) {
-            return ["success" => false, "message" => "ID não informado."];
+        if (!$dto->id) {
+            return [
+                "success" => false,
+                "message" => "ID not provided."
+            ];
         }
-        return ["success" => true];
+
+        $deletou = $this->repository->delete((int) $dto->id);
+
+        if (!$deletou) {
+            return [
+                "success" => false,
+                "message" => "Task not found."
+            ];
+        }
+
+        return [
+            "success" => true,
+            "message" => "Task deleted successfully."
+        ];
     }
 
-    public function validarUpdate(array $dados): array
+    public function update(TarefaDTO $dto): array
     {
-        if (!isset($dados['id']) || empty($dados['id'])) {
-            return ["success" => false, "message" => "ID não informado."];
-        }
-        if (empty(trim($dados['titulo'] ?? '')) || empty(trim($dados['descricao'] ?? '')) || empty(trim($dados['data_entrega'] ?? ''))) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
+        if (!$dto->id) {
+            return [
+                "success" => false,
+                "message" => "ID not provided."
+            ];
         }
 
-        $titulo = $dados['titulo'];
-        $descricao = $dados['descricao'];
-        $data_entrega = $dados['data_entrega'];
+        if (empty($dto->titulo) || empty($dto->descricao) || empty($dto->data_entrega)) {
+            return [
+                "success" => false,
+                "message" => "Fill in all required fields."
+            ];
+        }
 
-        return $this->validator->validateCreate($titulo, $descricao, $data_entrega);
+        $validacao = $this->validator->validateCreate(
+            $dto->titulo,
+            $dto->descricao,
+            $dto->data_entrega
+        );
+
+        if (!$validacao["success"]) {
+            return $validacao;
+        }
+
+        $tarefa = new Tarefa(
+            $dto->titulo,
+            $dto->descricao,
+            $dto->data_entrega,
+            $dto->id
+        );
+
+        $atualizou = $this->repository->update($tarefa);
+
+        if (!$atualizou) {
+            return [
+                "success" => false,
+                "message" => "Task not found."
+            ];
+        }
+
+        return [
+            "success" => true,
+            "message" => "Task updated successfully."
+        ];
+    }
+
+    public function findAll(): array
+    {
+        $tarefas = $this->repository->findAll();
+
+        return [
+            "success" => true,
+            "tarefas" => $tarefas
+        ];
     }
 }

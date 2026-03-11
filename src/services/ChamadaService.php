@@ -3,46 +3,84 @@
 namespace App\Services;
 
 use App\Validators\ChamadaValidator;
+use App\DTOs\ChamadaDTO;
+use App\Models\Chamada;
+use App\Repositories\ChamadaRepository;
 
 class ChamadaService
 {
     private ChamadaValidator $validator;
+    private ChamadaRepository $repository;
 
-    public function __construct()
+    public function __construct($conn)
     {
         $this->validator = new ChamadaValidator();
+        $this->repository = new ChamadaRepository($conn);
     }
 
-    public function validarCreate(array $dados): array
+    public function create(ChamadaDTO $dto): array
     {
-        if (empty(trim($dados['data'] ?? ''))) {
+        if (empty($dto->data)) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
 
-        $data = $dados['data'];
+        $validacao = $this->validator->validateCreate($dto->data);
+        if (!$validacao['success']) {
+            return $validacao;
+        }
 
-        return $this->validator->validateCreate($data);
+        $chamada = new Chamada($dto->data);
+        $criou = $this->repository->create($chamada);
+
+        if (!$criou) {
+            return ["success" => false, "message" => "Erro ao criar chamada."];
+        }
+
+        return ["success" => true, "message" => "Chamada criada com sucesso.", "id" => $chamada->id];
     }
 
-    public function validarDelete(array $dados): array
+    public function findAll(): array
     {
-        if (!isset($dados['id']) || empty($dados['id'])) {
-            return ["success" => false, "message" => "ID não informado."];
-        }
-        return ["success" => true];
+        $chamadas = $this->repository->findAll();
+        return ["success" => true, "chamadas" => $chamadas];
     }
 
-    public function validarUpdate(array $dados): array
+    public function update(ChamadaDTO $dto): array
     {
-        if (!isset($dados['id']) || empty($dados['id'])) {
+        if (!$dto->id) {
             return ["success" => false, "message" => "ID não informado."];
         }
-        if (empty(trim($dados['data'] ?? ''))) {
+        if (empty($dto->data)) {
             return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
         }
 
-        $data = $dados['data'];
+        $validacao = $this->validator->validateCreate($dto->data);
+        if (!$validacao['success']) {
+            return $validacao;
+        }
 
-        return $this->validator->validateCreate($data);
+        $chamada = new Chamada($dto->data, $dto->id);
+        $atualizou = $this->repository->update($chamada);
+
+        if (!$atualizou) {
+            return ["success" => false, "message" => "Chamada not found."];
+        }
+
+        return ["success" => true, "message" => "Chamada atualizada com sucesso."];
+    }
+
+    public function delete(ChamadaDTO $dto): array
+    {
+        if (!$dto->id) {
+            return ["success" => false, "message" => "ID não informado."];
+        }
+
+        $deletou = $this->repository->delete((int) $dto->id);
+
+        if (!$deletou) {
+            return ["success" => false, "message" => "Chamada not found."];
+        }
+
+        return ["success" => true, "message" => "Chamada deletada com sucesso."];
     }
 }
