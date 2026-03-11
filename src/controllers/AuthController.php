@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Repositories\AuthRepository;
+use App\Services\AuthService;
 
 class AuthController
 {
     private AuthRepository $repository;
+    private AuthService $service;
 
     public function __construct($conn)
     {
         $this->repository = new AuthRepository($conn);
+        $this->service = new AuthService();
     }
 
     /* ============================== */
@@ -26,16 +29,15 @@ class AuthController
             return;
         }
 
-        $email = $_POST['email'] ?? '';
-        $senha = $_POST['senha'] ?? '';
-
-        if (empty($email) || empty($senha)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Email e senha são obrigatórios.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarLogin($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $email = $_POST['email'];
+        $senha = $_POST['senha'];
 
         $usuario = $this->repository->authenticate($email, $senha);
 

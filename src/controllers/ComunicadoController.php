@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\Comunicado;
 use App\Repositories\ComunicadoRepository;
+use App\Services\ComunicadoService;
 
 class ComunicadoController
 {
     private ComunicadoRepository $repository;
+    private ComunicadoService $service;
 
     public function __construct($conn)
     {
         $this->repository = new ComunicadoRepository($conn);
+        $this->service = new ComunicadoService();
     }
 
     /* ============================== */
@@ -27,16 +30,15 @@ class ComunicadoController
             return;
         }
 
-        $titulo = $_POST['titulo'] ?? '';
-        $corpo = $_POST['corpo'] ?? '';
-
-        if (empty($titulo) || empty($corpo)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Título e corpo são obrigatórios.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $titulo = $_POST['titulo'];
+        $corpo = $_POST['corpo'];
 
         $comunicado = new Comunicado($titulo, $corpo);
 
@@ -92,17 +94,15 @@ class ComunicadoController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-        $titulo = $_POST['titulo'] ?? '';
-        $corpo = $_POST['corpo'] ?? '';
-
-        if (empty($id) || empty($titulo) || empty($corpo)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID, título e corpo são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $id = $_POST['id'];
+        $titulo = $_POST['titulo'];
+        $corpo = $_POST['corpo'];
 
         $comunicado = new Comunicado($titulo, $corpo, (int)$id);
 
@@ -135,17 +135,13 @@ class ComunicadoController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-
-        if (empty($id)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID é obrigatório.'
-            ]);
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int)$id);
+        $deletou = $this->repository->delete((int) $_POST['id']);
 
         if ($deletou) {
             echo json_encode([

@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\ChamadaItem;
 use App\Repositories\ChamadaItemRepository;
+use App\Services\ChamadaItemService;
 
 class ChamadaItemController
 {
     private ChamadaItemRepository $repository;
+    private ChamadaItemService $service;
 
     public function __construct($conn)
     {
         $this->repository = new ChamadaItemRepository($conn);
+        $this->service = new ChamadaItemService();
     }
 
     /* ============================== */
@@ -27,17 +30,16 @@ class ChamadaItemController
             return;
         }
 
-        $chamadaId = $_POST['chamada_id'] ?? '';
-        $alunoId = $_POST['aluno_id'] ?? '';
-        $status = $_POST['status'] ?? '';
-
-        if (empty($chamadaId) || empty($alunoId) || empty($status)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Todos os campos são obrigatórios.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $chamadaId = $_POST['chamada_id'];
+        $alunoId = $_POST['aluno_id'];
+        $status = $_POST['status'];
 
         $chamadaItem = new ChamadaItem((int)$chamadaId, (int)$alunoId, $status);
 
@@ -102,17 +104,15 @@ class ChamadaItemController
             return;
         }
 
-        $chamadaId = $_POST['chamada_id'] ?? '';
-        $alunoId = $_POST['aluno_id'] ?? '';
-        $status = $_POST['status'] ?? '';
-
-        if (empty($chamadaId) || empty($alunoId) || empty($status)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Todos os campos são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $chamadaId = $_POST['chamada_id'];
+        $alunoId = $_POST['aluno_id'];
+        $status = $_POST['status'];
 
         $chamadaItem = new ChamadaItem((int)$chamadaId, (int)$alunoId, $status);
 
@@ -145,18 +145,13 @@ class ChamadaItemController
             return;
         }
 
-        $chamadaId = $_POST['chamada_id'] ?? '';
-        $alunoId = $_POST['aluno_id'] ?? '';
-
-        if (empty($chamadaId) || empty($alunoId)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID da chamada e ID do aluno são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int)$chamadaId, (int)$alunoId);
+        $deletou = $this->repository->delete((int) $_POST['chamada_id'], (int) $_POST['aluno_id']);
 
         if ($deletou) {
             echo json_encode([

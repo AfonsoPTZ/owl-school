@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\Tarefa;
 use App\Repositories\TarefaRepository;
+use App\Services\TarefaService;
 
 class TarefaController
 {
     private TarefaRepository $repository;
+    private TarefaService $service;
 
     public function __construct($conn)
     {
         $this->repository = new TarefaRepository($conn);
+        $this->service = new TarefaService();
     }
 
     /* ============================== */
@@ -27,9 +30,16 @@ class TarefaController
             return;
         }
 
-        $titulo       = $_POST['titulo'] ?? '';
-        $descricao    = $_POST['descricao'] ?? '';
-        $data_entrega = $_POST['data_entrega'] ?? '';
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
+            return;
+        }
+
+        $titulo       = $_POST['titulo'];
+        $descricao    = $_POST['descricao'];
+        $data_entrega = $_POST['data_entrega'];
 
         $tarefa = new Tarefa(
             $titulo,
@@ -66,17 +76,14 @@ class TarefaController
             return;
         }
 
-        $id = $_POST['id'] ?? null;
-
-        if (!$id) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID não informado.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int) $id);
+        $deletou = $this->repository->delete((int) $_POST['id']);
 
         if ($deletou) {
             echo json_encode([
@@ -127,18 +134,17 @@ class TarefaController
             return;
         }
 
-        $id           = $_POST['id'] ?? null;
-        $titulo       = $_POST['titulo'] ?? '';
-        $descricao    = $_POST['descricao'] ?? '';
-        $data_entrega = $_POST['data_entrega'] ?? '';
-
-        if (!$id) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID não informado.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $id           = $_POST['id'];
+        $titulo       = $_POST['titulo'];
+        $descricao    = $_POST['descricao'];
+        $data_entrega = $_POST['data_entrega'];
 
         $tarefa = new Tarefa(
             $titulo,

@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\Agenda;
 use App\Repositories\AgendaRepository;
+use App\Services\AgendaService;
 
 class AgendaController
 {
     private AgendaRepository $repository;
+    private AgendaService $service;
 
     public function __construct($conn)
     {
         $this->repository = new AgendaRepository($conn);
+        $this->service = new AgendaService();
     }
 
     /* ============================== */
@@ -27,18 +30,17 @@ class AgendaController
             return;
         }
 
-        $diaSemana = $_POST['dia_semana'] ?? '';
-        $inicio = $_POST['inicio'] ?? '';
-        $fim = $_POST['fim'] ?? '';
-        $disciplina = $_POST['disciplina'] ?? '';
-
-        if (empty($diaSemana) || empty($inicio) || empty($fim) || empty($disciplina)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Todos os campos são obrigatórios.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $diaSemana = $_POST['dia_semana'];
+        $inicio = $_POST['inicio'];
+        $fim = $_POST['fim'];
+        $disciplina = $_POST['disciplina'];
 
         $agenda = new Agenda($diaSemana, $inicio, $fim, $disciplina);
 
@@ -110,19 +112,17 @@ class AgendaController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-        $diaSemana = $_POST['dia_semana'] ?? '';
-        $inicio = $_POST['inicio'] ?? '';
-        $fim = $_POST['fim'] ?? '';
-        $disciplina = $_POST['disciplina'] ?? '';
-
-        if (empty($id) || empty($diaSemana) || empty($inicio) || empty($fim) || empty($disciplina)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Todos os campos são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $id = $_POST['id'];
+        $diaSemana = $_POST['dia_semana'];
+        $inicio = $_POST['inicio'];
+        $fim = $_POST['fim'];
+        $disciplina = $_POST['disciplina'];
 
         $agenda = new Agenda($diaSemana, $inicio, $fim, $disciplina, (int)$id);
 
@@ -155,17 +155,13 @@ class AgendaController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-
-        if (empty($id)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID é obrigatório.'
-            ]);
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int)$id);
+        $deletou = $this->repository->delete((int) $_POST['id']);
 
         if ($deletou) {
             echo json_encode([

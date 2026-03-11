@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\Chamada;
 use App\Repositories\ChamadaRepository;
+use App\Services\ChamadaService;
 
 class ChamadaController
 {
     private ChamadaRepository $repository;
+    private ChamadaService $service;
 
     public function __construct($conn)
     {
         $this->repository = new ChamadaRepository($conn);
+        $this->service = new ChamadaService();
     }
 
     /* ============================== */
@@ -27,15 +30,14 @@ class ChamadaController
             return;
         }
 
-        $data = $_POST['data'] ?? '';
-
-        if (empty($data)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Data é obrigatória.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $data = $_POST['data'];
 
         $chamada = new Chamada($data);
 
@@ -91,16 +93,14 @@ class ChamadaController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-        $data = $_POST['data'] ?? '';
-
-        if (empty($id) || empty($data)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID e data são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $id = $_POST['id'];
+        $data = $_POST['data'];
 
         $chamada = new Chamada($data, (int)$id);
 
@@ -133,17 +133,13 @@ class ChamadaController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-
-        if (empty($id)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID é obrigatório.'
-            ]);
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int)$id);
+        $deletou = $this->repository->delete((int) $_POST['id']);
 
         if ($deletou) {
             echo json_encode([

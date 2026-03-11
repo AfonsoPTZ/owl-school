@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\Advertencia;
 use App\Repositories\AdvertenciaRepository;
+use App\Services\AdvertenciaService;
 
 class AdvertenciaController
 {
     private AdvertenciaRepository $repository;
+    private AdvertenciaService $service;
 
     public function __construct($conn)
     {
         $this->repository = new AdvertenciaRepository($conn);
+        $this->service = new AdvertenciaService();
     }
 
     /* ============================== */
@@ -27,17 +30,16 @@ class AdvertenciaController
             return;
         }
 
-        $titulo = $_POST['titulo'] ?? '';
-        $descricao = $_POST['descricao'] ?? '';
-        $aluno_id = $_POST['aluno_id'] ?? '';
-
-        if (empty($titulo) || empty($descricao) || empty($aluno_id)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Título, descrição e aluno são obrigatórios.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $titulo = $_POST['titulo'];
+        $descricao = $_POST['descricao'];
+        $aluno_id = $_POST['aluno_id'];
 
         $advertencia = new Advertencia($titulo, $descricao);
 
@@ -93,17 +95,15 @@ class AdvertenciaController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-        $titulo = $_POST['titulo'] ?? '';
-        $descricao = $_POST['descricao'] ?? '';
-
-        if (empty($id) || empty($titulo) || empty($descricao)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID, título e descrição são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $id = $_POST['id'];
+        $titulo = $_POST['titulo'];
+        $descricao = $_POST['descricao'];
 
         $advertencia = new Advertencia($titulo, $descricao, (int)$id);
 
@@ -136,17 +136,13 @@ class AdvertenciaController
             return;
         }
 
-        $id = $_POST['id'] ?? '';
-
-        if (empty($id)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID é obrigatório.'
-            ]);
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int)$id);
+        $deletou = $this->repository->delete((int) $_POST['id']);
 
         if ($deletou) {
             echo json_encode([

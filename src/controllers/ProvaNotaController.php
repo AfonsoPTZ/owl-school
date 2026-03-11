@@ -4,14 +4,17 @@ namespace App\Controllers;
 
 use App\Models\ProvaNota;
 use App\Repositories\ProvaNotaRepository;
+use App\Services\ProvaNotaService;
 
 class ProvaNotaController
 {
     private ProvaNotaRepository $repository;
+    private ProvaNotaService $service;
 
     public function __construct($conn)
     {
         $this->repository = new ProvaNotaRepository($conn);
+        $this->service = new ProvaNotaService();
     }
 
     /* ============================== */
@@ -27,17 +30,16 @@ class ProvaNotaController
             return;
         }
 
-        $provaId = $_POST['prova_id'] ?? '';
-        $alunoId = $_POST['aluno_id'] ?? '';
-        $nota = $_POST['nota'] ?? '';
-
-        if (empty($provaId) || empty($alunoId) || $nota === '') {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Todos os campos são obrigatórios.'
-            ]);
+        // Validar dados com o service
+        $validacao = $this->service->validarCreate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $provaId = $_POST['prova_id'];
+        $alunoId = $_POST['aluno_id'];
+        $nota = $_POST['nota'];
 
         $provaNota = new ProvaNota((int)$provaId, (int)$alunoId, (float)$nota);
 
@@ -105,17 +107,15 @@ class ProvaNotaController
             return;
         }
 
-        $provaId = $_POST['prova_id'] ?? '';
-        $alunoId = $_POST['aluno_id'] ?? '';
-        $nota = $_POST['nota'] ?? '';
-
-        if (empty($provaId) || empty($alunoId) || $nota === '') {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Todos os campos são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarUpdate($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
+
+        $provaId = $_POST['prova_id'];
+        $alunoId = $_POST['aluno_id'];
+        $nota = $_POST['nota'];
 
         $provaNota = new ProvaNota((int)$provaId, (int)$alunoId, (float)$nota);
 
@@ -148,18 +148,13 @@ class ProvaNotaController
             return;
         }
 
-        $provaId = $_POST['prova_id'] ?? '';
-        $alunoId = $_POST['aluno_id'] ?? '';
-
-        if (empty($provaId) || empty($alunoId)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'ID da prova e ID do aluno são obrigatórios.'
-            ]);
+        $validacao = $this->service->validarDelete($_POST);
+        if (!$validacao['success']) {
+            echo json_encode($validacao);
             return;
         }
 
-        $deletou = $this->repository->delete((int)$provaId, (int)$alunoId);
+        $deletou = $this->repository->delete((int) $_POST['prova_id'], (int) $_POST['aluno_id']);
 
         if ($deletou) {
             echo json_encode([
