@@ -9,4 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../../../api/utils/aluno/advertencia_aluno.php';
+use App\Controllers\UtilsAlunoController;
+
+$controller = new UtilsAlunoController($conn);
+$controller->getAdvertencias();

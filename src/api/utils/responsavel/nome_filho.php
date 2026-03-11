@@ -9,4 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../../../api/utils/responsavel/nome_filho.php';
+use App\Controllers\UtilsResponsavelController;
+
+$controller = new UtilsResponsavelController($conn);
+$controller->getNomeFilho();

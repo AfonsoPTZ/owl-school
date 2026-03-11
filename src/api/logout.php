@@ -9,5 +9,4 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Arquivo temporário para logout
-require_once __DIR__ . '/../../api/logout.php';
+require_once __DIR__ . '/auth/logout.php';
