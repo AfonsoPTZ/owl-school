@@ -6,15 +6,10 @@ async function excluirAdvertencia(id) {
   if (!confirm("Tem certeza que deseja excluir?")) return;
 
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("id", id);
-
-
-  const resposta = await fetch("/owl-school/src/api/advertencia/delete.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/advertencia/index.php", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
   });
 
 

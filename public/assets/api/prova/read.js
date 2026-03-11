@@ -3,7 +3,7 @@ async function carregarProvas() {
   const user = await getSessionUser();
   const tipoUsuario = user.tipo_usuario;
 
-  const response = await fetch("/owl-school/src/api/prova/read.php", { method: "POST" });
+  const response = await fetch("/owl-school/src/api/prova/index.php", { method: "GET" });
   const resultado = await response.json();
 
 

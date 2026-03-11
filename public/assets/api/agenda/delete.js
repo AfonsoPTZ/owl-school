@@ -6,15 +6,10 @@ async function excluirHorario(id) {
   if (!confirm("Tem certeza que deseja excluir este horário?")) return;
 
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("id", id);
-
-
-  const resposta = await fetch("/owl-school/src/api/agenda/delete.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/agenda/index.php", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
   });
 
 

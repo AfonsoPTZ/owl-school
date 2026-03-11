@@ -1,15 +1,7 @@
 async function listarNotasDaProva(provaId) {
 
-
-    const formularioDados = new FormData();
-
-    formularioDados.append("prova_id", provaId);
-
-
-    const resposta = await fetch("/owl-school/src/api/prova_nota/read.php", {
-      method: "POST",
-      body: formularioDados
-
+    const resposta = await fetch("/owl-school/src/api/prova_nota/index.php?prova_id=" + provaId, {
+      method: "GET"
     });
 
     const dados = await resposta.json();

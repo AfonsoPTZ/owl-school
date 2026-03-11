@@ -11,7 +11,7 @@ async function editarProva(idProva) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/src/api/prova/read.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/prova/index.php", { method: "GET" });
 
   const dados = await resposta.json();
 
@@ -29,17 +29,14 @@ async function salvarProva() {
   const data   = document.getElementById("edit_data_prova").value;
 
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("id", idDaProvaAtual);
-  formularioDados.append("titulo", titulo);
-  formularioDados.append("data", data);
-
-
-  const resposta = await fetch("/owl-school/src/api/prova/update.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/prova/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: idDaProvaAtual,
+      titulo,
+      data
+    })
   });
 
 

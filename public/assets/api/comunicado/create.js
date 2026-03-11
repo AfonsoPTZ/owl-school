@@ -16,7 +16,7 @@ async function criarComunicado() {
   formularioDados.append("corpo", corpo);
 
 
-  const resposta = await fetch("/owl-school/src/api/comunicado/create.php", {
+  const resposta = await fetch("/owl-school/src/api/comunicado/index.php", {
     method: "POST",
     body: formularioDados
 

@@ -9,7 +9,7 @@ async function editarChamada(idChamada) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/src/api/chamada/read.php", { method: "POST"});
+  const resposta = await fetch("/owl-school/src/api/chamada/index.php", { method: "GET" });
 
   const dados = await resposta.json();
   const chamada = dados.chamadas.find(chamada => String(chamada.id) === String(idChamada));
@@ -23,16 +23,13 @@ async function salvarChamada() {
 
   const data = document.getElementById("edit_data_chamada").value;
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("id", idDaChamadaAtual);
-  formularioDados.append("data", data);
-
-
-  const resposta = await fetch("/owl-school/src/api/chamada/update.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/chamada/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: idDaChamadaAtual,
+      data
+    })
   });
 
 

@@ -22,18 +22,16 @@ async function salvarEdicaoHorario() {
   const fim        = document.getElementById("edit_fim").value;
   const disciplina = document.getElementById("edit_disciplina").value;
 
-  const formulario = new FormData();
-
-  formulario.append("id", idDoHorarioAtual);
-  formulario.append("dia_semana", dia_semana);
-  formulario.append("inicio", inicio);
-  formulario.append("fim", fim);
-  formulario.append("disciplina", disciplina);
-
-  const resposta = await fetch("/owl-school/src/api/agenda/update.php", {
-    method: "POST",
-    body: formulario
-
+  const resposta = await fetch("/owl-school/src/api/agenda/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: idDoHorarioAtual,
+      dia_semana,
+      inicio,
+      fim,
+      disciplina
+    })
   });
 
   const resultado = await resposta.json();

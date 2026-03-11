@@ -26,13 +26,13 @@ class AuthMiddleware
         }
     }
 
-    public static function requireRole(string $role): void
+    public static function requireRole(...$roles): void
     {
         self::startSession();
 
         if (
             empty($_SESSION['tipo_usuario']) ||
-            $_SESSION['tipo_usuario'] !== $role
+            !in_array($_SESSION['tipo_usuario'], $roles)
         ) {
             http_response_code(403);
             header('Content-Type: application/json');

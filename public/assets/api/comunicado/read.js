@@ -2,7 +2,7 @@ async function carregarComunicados() {
   
     const user = await getSessionUser();
 
-    const resposta = await fetch("/owl-school/src/api/comunicado/read.php", { method: "POST" });
+    const resposta = await fetch("/owl-school/src/api/comunicado/index.php", { method: "GET" });
 
     const resultado = await resposta.json();
 

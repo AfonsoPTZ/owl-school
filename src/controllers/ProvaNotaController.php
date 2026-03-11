@@ -62,9 +62,9 @@ class ProvaNotaController
     /* ============================== */
     /* READ BY PROVA */
     /* ============================== */
-    public function read()
+    public function index()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -72,7 +72,7 @@ class ProvaNotaController
             return;
         }
 
-        $provaId = $_POST['prova_id'] ?? '';
+        $provaId = $_GET['prova_id'] ?? '';
 
         if (empty($provaId)) {
             echo json_encode([
@@ -99,7 +99,7 @@ class ProvaNotaController
     /* ============================== */
     public function update()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -140,7 +140,7 @@ class ProvaNotaController
     /* ============================== */
     public function delete()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'

@@ -19,17 +19,14 @@ async function salvarEdicaoChamadaItem() {
 
   const status = document.getElementById("edit_status").value;
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("chamada_id", idChamadaAtualEditar);
-  formularioDados.append("aluno_id", idAlunoAtualEditarChamada);
-  formularioDados.append("status", status);
-
-
-  const resposta = await fetch("/owl-school/src/api/chamada_item/update.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/chamada_item/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chamada_id: idChamadaAtualEditar,
+      aluno_id: idAlunoAtualEditarChamada,
+      status
+    })
   });
 
 

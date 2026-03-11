@@ -10,7 +10,7 @@ async function abrirModalEditarAdvertencia(idAdvertencia) {
     modal.show();
 
 
-    const resposta = await fetch("/owl-school/src/api/advertencia/read.php", { method: "POST" });
+    const resposta = await fetch("/owl-school/src/api/advertencia/index.php", { method: "GET" });
 
     const dados = await resposta.json();
 
@@ -30,18 +30,14 @@ async function salvarAdvertencia() {
     const descricao = document.getElementById("edit_descricao").value;
 
 
-    const formularioDados = new FormData();
-
-
-    formularioDados.append("id", idAdvertenciaAtual);
-    formularioDados.append("titulo", titulo);
-    formularioDados.append("descricao", descricao);
-
-
-    const resp = await fetch("/owl-school/src/api/advertencia/update.php", {
-      method: "POST",
-      body: formularioDados
-
+    const resp = await fetch("/owl-school/src/api/advertencia/index.php", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: idAdvertenciaAtual,
+        titulo,
+        descricao
+      })
     });
 
     const resultado = await resp.json();

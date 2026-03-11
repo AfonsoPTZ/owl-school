@@ -10,7 +10,7 @@ async function editarTarefa(idTarefa) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/src/api/tarefa/read.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/tarefa/index.php", { method: "GET" });
   const dados = await resposta.json();
 
 
@@ -29,18 +29,15 @@ async function salvarTarefa() {
   const descricao = document.getElementById("edit_descricao").value;
   const dataEntrega = document.getElementById("edit_data").value;
 
-  const formulario = new FormData();
-
-
-  formulario.append("id", idDaTarefaAtual);
-  formulario.append("titulo", titulo);
-  formulario.append("descricao", descricao);
-  formulario.append("data_entrega", dataEntrega);
-
-
-  const resposta = await fetch("/owl-school/src/api/tarefa/update.php", {
-    method: "POST",
-    body: formulario
+  const resposta = await fetch("/owl-school/src/api/tarefa/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: idDaTarefaAtual,
+      titulo: titulo,
+      descricao: descricao,
+      data_entrega: dataEntrega
+    })
   });
 
   const resultado = await resposta.json();

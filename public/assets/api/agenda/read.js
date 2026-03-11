@@ -3,7 +3,7 @@ async function carregarAgenda() {
   const user = await getSessionUser();
   const tipoUsuario = user.tipo_usuario;
 
-  const response = await fetch("/owl-school/src/api/agenda/read.php", { method: "POST" });
+  const response = await fetch("/owl-school/src/api/agenda/index.php", { method: "GET" });
   const resultado = await response.json();
 
   const dias = ["segunda", "terca", "quarta", "quinta", "sexta"];

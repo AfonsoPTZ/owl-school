@@ -62,9 +62,9 @@ class ProvaController
     /* ============================== */
     /* READ */
     /* ============================== */
-    public function read()
+    public function index()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -86,7 +86,7 @@ class ProvaController
     /* ============================== */
     public function update()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -127,7 +127,7 @@ class ProvaController
     /* ============================== */
     public function delete()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'

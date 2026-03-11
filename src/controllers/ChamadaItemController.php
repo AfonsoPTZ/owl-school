@@ -62,9 +62,9 @@ class ChamadaItemController
     /* ============================== */
     /* READ BY CHAMADA */
     /* ============================== */
-    public function read()
+    public function index()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -72,7 +72,7 @@ class ChamadaItemController
             return;
         }
 
-        $chamadaId = $_POST['chamada_id'] ?? '';
+        $chamadaId = $_GET['chamada_id'] ?? '';
 
         if (empty($chamadaId)) {
             echo json_encode([
@@ -96,7 +96,7 @@ class ChamadaItemController
     /* ============================== */
     public function update()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -137,7 +137,7 @@ class ChamadaItemController
     /* ============================== */
     public function delete()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'

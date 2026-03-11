@@ -34,7 +34,7 @@ async function salvarCriacaoNota() {
   formularioDados.append("nota", nota);
 
 
-  const resposta = await fetch("/owl-school/src/api/prova_nota/create.php", {
+  const resposta = await fetch("/owl-school/src/api/prova_nota/index.php", {
     method: "POST",
     body: formularioDados
 

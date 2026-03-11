@@ -2,7 +2,7 @@ async function carregarTarefas() {
 
     const user = await getSessionUser();
 
-    const response = await fetch("/owl-school/src/api/tarefa/read.php", { method: "POST" });
+    const response = await fetch("/owl-school/src/api/tarefa/index.php", { method: "GET" });
     const resultado = await response.json();
 
     const tipoUsuario = user.tipo_usuario;

@@ -22,17 +22,14 @@ async function salvarEdicaoNota() {
   nota = nota.replace(",", ".");
 
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("prova_id", idProvaAtualEditar);
-  formularioDados.append("aluno_id", idAlunoAtualEditar);
-  formularioDados.append("nota", nota);
-
-
-  const resposta = await fetch("/owl-school/src/api/prova_nota/update.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/prova_nota/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prova_id: idProvaAtualEditar,
+      aluno_id: idAlunoAtualEditar,
+      nota
+    })
   });
 
 

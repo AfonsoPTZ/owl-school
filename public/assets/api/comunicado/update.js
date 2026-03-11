@@ -9,7 +9,7 @@ async function editarComunicado(idComunicado) {
   modal.show();
 
 
-  const resposta = await fetch("/owl-school/src/api/comunicado/read.php", { method: "POST" });
+  const resposta = await fetch("/owl-school/src/api/comunicado/index.php", { method: "GET" });
 
   const dados = await resposta.json();
 
@@ -26,17 +26,14 @@ async function salvarComunicado() {
   const corpo  = document.getElementById("edit_corpo").value;
 
 
-  const formularioDados = new FormData();
-
-  formularioDados.append("id", idDoComunicadoAtual);
-  formularioDados.append("titulo", titulo);
-  formularioDados.append("corpo", corpo);
-
-
-  const resposta = await fetch("/owl-school/src/api/comunicado/update.php", {
-    method: "POST",
-    body: formularioDados
-
+  const resposta = await fetch("/owl-school/src/api/comunicado/index.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: idDoComunicadoAtual,
+      titulo,
+      corpo
+    })
   });
 
 
