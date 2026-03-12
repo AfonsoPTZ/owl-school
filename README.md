@@ -1,79 +1,185 @@
-# 📚 Documentação - OWL School
+# 🦉 OWL School
 
-Sistema de gestão escolar com suporte a alunos, professores, responsáveis e admin.
+Plataforma escolar profissional com arquitetura em camadas, desenvolvida para facilitar a comunicação entre **alunos, responsáveis, professores e administradores**.
 
-## 🗂️ Índice de Documentação
-
-### 📖 Documentos Principais
-
-- **[📋 ARCHITECTURE.md](ARCHITECTURE.md)** - Arquitetura geral da aplicação
-- **[🔧 DEVELOPMENT.md](DEVELOPMENT.md)** - Guia para desenvolvedores
-- **[📝 LOGGER.md](LOGGER.md)** - Sistema de logs
-- **[🔌 API_REFERENCE.md](API_REFERENCE.md)** - Referência de todos os endpoints
-
-### 🎯 Todos os Módulos
-
-A API inclui 9 módulos completos (AUTH, TAREFA, CHAMADA, CHAMADA_ITEM, COMUNICADO, ADVERTENCIA, AGENDA, PROVA, PROVA_NOTA).
-
-Ver todos os endpoints em **[API_REFERENCE.md](API_REFERENCE.md)**
+Projeto acadêmico com padrões corporativos: **PHP 8 + MySQL + Bootstrap 5** com **Controller → Service → Repository** pattern.
 
 ---
 
-## 🚀 Quick Start
+## ✨ Destaques Arquiteturais
 
-### Para Começar a Desenvolver
+**Arquitetura em Camadas**
+- Pattern: Controller → Service → Repository
+- Cada componente com responsabilidade única
+- Fácil de testar, manter e expandir
 
-1. Leia [ARCHITECTURE.md](ARCHITECTURE.md) para entender a estrutura
-2. Abra [DEVELOPMENT.md](DEVELOPMENT.md) para padrões e exemplos
-3. Consulte o módulo relevante em `modules/`
+**DTOs Inteligentes**
+- Normaliza JSON (camelCase) e FormData (snake_case)
+- Conversão automática de tipos
+- Contrato bem definido entre camadas
 
-### Para Integrar uma API
+**Validação Robusta**
+- Validator em cada módulo
+- validateCreate(), validateUpdate(), validateDelete()
+- Regras de negócio centralizadas
 
-1. Abra [API_REFERENCE.md](API_REFERENCE.md) para listar os endpoints
-2. Consulte o módulo específico para detalhes de payload
+**Segurança**
+- Prepared Statements em todas as queries (sem SQL Injection)
+- Input Validation obrigatória
+- Authentication Middleware
+- Tratamento de erros centralizado
 
-### Para Debugar
+**Logging Centralizado**
+- Sistema de logs em `src/utils/Logger.php`
+- Rastreamento de operações e erros
+- Arquivo em `/logs/app.log`
 
-1. Leia [LOGGER.md](LOGGER.md) para entender logs
-2. Verifique `logs/app.log` na raiz do projeto
-
----
-
-## 📊 Tecnologias
-
-- **Backend**: PHP 8+ com MySQLi
-- **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript
-- **Database**: MySQL 5.7+
-- **Padrão Arquitetural**: Repository + Service + DTO
-
----
-
-## 🔑 Tipos de Usuário
-
-- **aluno** - Acesso a tarefas, provas, agenda
-- **professor** - Cria tarefas, provas, chamadas
-- **responsavel** - Visualiza desempenho do aluno
-- **admin** - Acesso total ao sistema
+**9 Módulos CRUD Completos**
+- AUTH, TAREFA, CHAMADA, CHAMADA_ITEM, COMUNICADO, ADVERTENCIA, AGENDA, PROVA, PROVA_NOTA
 
 ---
 
-## 📝 Estilo de Código
+## 📚 Funcionalidades
 
-- Todos os DTOs aceitam ambos `snake_case` e `camelCase`
-- Services sempre retornam `['success' => bool, 'message' => string, 'status' => int]`
-- Controllers estendem `BaseController` para error handling centralizado
-- Repositories sempre checam `if (!$stmt)` antes de usar
-
----
-
-## 👥 Suporte
-
-Para dúvidas sobre:
-- **Arquitetura** → [ARCHITECTURE.md](ARCHITECTURE.md)
-- **Desenvolvimento** → [DEVELOPMENT.md](DEVELOPMENT.md)
-- **Endpoints HTTP** → [API_REFERENCE.md](API_REFERENCE.md)
-- **Logs e Debug** → [LOGGER.md](LOGGER.md)
+- Login com perfis diferentes (Aluno, Professor, Responsável, Admin)
+- Dashboard personalizado para cada usuário
+- Visualização de notas, faltas e boletim
+- Cadastro e vínculo de alunos e responsáveis
+- Comunicação entre escola e responsáveis (avisos, mensagens)
+- Gestão de disciplinas, turmas e professores
+- Controle de presença (chamadas)
+- Painel administrativo para gerenciamento
 
 ---
 
-Última atualização: Março 2026
+## 🛠️ Stack Tecnológico
+
+| Componente | Tecnologia |
+|-----------|-----------|
+| **Frontend** | HTML5, CSS3, [Bootstrap 5](https://getbootstrap.com/) |
+| **Backend** | PHP 8+ |
+| **Banco de Dados** | MySQL 5.7+ |
+| **Autenticação** | Session + Cookie |
+| **Padrão Arquitetural** | Repository + Service + DTO |
+| **Configuração** | .env para variáveis sensíveis |
+
+---
+
+## 📂 Estrutura
+
+```
+OWL School/
+├── src/
+│   ├── api/           # Endpoints HTTP (entrada das requisições)
+│   ├── controllers/   # Coordena requisições (Controller pattern)
+│   ├── services/      # Lógica de negócio
+│   ├── repositories/  # Acesso ao banco de dados
+│   ├── dtos/          # Data Transfer Objects (normalizam dados)
+│   ├── validators/    # Validação de regras de negócio
+│   ├── models/        # Modelos de dados
+│   ├── middleware/    # Autenticação e autorização
+│   ├── db/            # Configuração e scripts SQL
+│   └── utils/         # Utilitários (Logger, etc)
+│
+├── public/            # Frontend estático
+│   ├── aluno/         # Painel do aluno
+│   ├── professor/     # Painel do professor
+│   ├── responsavel/   # Painel do responsável
+│   ├── admin/         # Painel administrativo
+│   ├── assets/        # CSS, JavaScript, imagens
+│   └── index.html     # Página de login
+│
+├── docs/              # Documentação
+│   ├── HIGHLIGHTS.md  # Destaques do projeto
+│   ├── ARCHITECTURE.md  # Como funciona o código
+│   ├── DEVELOPMENT.md  # Como criar novo módulo
+│   └── LOGGER.md      # Sistema de logs
+│
+├── logs/              # Arquivos de log da aplicação
+├── vendor/            # Dependências Composer
+├── .env               # Variáveis de configuração (não commitar)
+├── composer.json      # Dependências PHP
+└── README.md          # Este arquivo
+```
+
+---
+
+## 📖 Documentação
+
+Toda documentação técnica está em `/docs/`:
+
+- **[HIGHLIGHTS.md](docs/HIGHLIGHTS.md)** - Destaques do projeto ⭐
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Arquitetura e fluxo
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Como criar novo módulo
+- **[LOGGER.md](docs/LOGGER.md)** - Sistema de logging
+
+---
+
+## 🚀 Como Rodar
+
+### Pré-requisitos
+- [XAMPP](https://www.apachefriends.org/) (Apache + MySQL)
+- PHP 8+
+- Composer (opcional, já tem dependências em `vendor/`)
+
+### Instalação
+
+1. Clone o repositório em `htdocs/`:
+   ```bash
+   git clone https://github.com/AfonsoPTZ/owl-school.git
+   cd owl-school
+   ```
+
+2. Configure o banco de dados:
+   - Abra o phpMyAdmin (http://localhost/phpmyadmin)
+   - Crie um banco chamado `owl_school`
+   - Importe o schema:
+     ```bash
+     mysql -u root owl_school < src/db/schema.sql
+     mysql -u root owl_school < src/db/seed.sql
+     ```
+
+3. Configure variáveis de ambiente:
+   ```bash
+   cp .env.example .env
+   # Edite .env com suas credenciais do banco
+   ```
+
+4. Inicie XAMPP:
+   - Apache ON
+   - MySQL ON
+
+5. Acesse no navegador:
+   ```
+   http://localhost/owl-school/public/
+   ```
+
+### Usuários de Teste
+
+Use as credenciais no `src/db/seed.sql`:
+
+| Email | Senha | Tipo |
+|-------|-------|------|
+| joao.aluno@teste.com | 123456 | Aluno |
+| maria.prof@teste.com | 123456 | Professor |
+| carlos.resp@teste.com | 123456 | Responsável |
+| admin@teste.com | 123456 | Admin |
+
+---
+
+## 🔐 Segurança
+
+- ✅ Prepared Statements em tudo (sem SQL Injection)
+- ✅ Validação rigorosa de input
+- ✅ Session-based authentication
+- ✅ Authorization middleware
+- ✅ Logging de operações críticas
+- ✅ .env para dados sensíveis
+
+---
+
+## 📝 Autor
+
+Desenvolvido como projeto acadêmico em 2026.
+
+---
