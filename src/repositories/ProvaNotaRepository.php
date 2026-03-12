@@ -22,6 +22,8 @@ class ProvaNotaRepository
             "INSERT INTO prova_nota (prova_id, aluno_id, nota) VALUES (?, ?, ?)"
         );
 
+        if (!$stmt) return false;
+
         $stmt->bind_param(
             "iid",
             $provaNota->provaId,
@@ -44,8 +46,15 @@ class ProvaNotaRepository
             "DELETE FROM prova_nota WHERE prova_id = ? AND aluno_id = ?"
         );
 
+        if (!$stmt) return false;
+
         $stmt->bind_param("ii", $provaId, $alunoId);
-        $stmt->execute();
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -60,6 +69,8 @@ class ProvaNotaRepository
     {
         // Buscar o título da prova
         $stmtProva = $this->conn->prepare("SELECT titulo FROM prova WHERE id = ?");
+        if (!$stmtProva) return [];
+
         $stmtProva->bind_param("i", $provaId);
         $stmtProva->execute();
         $resultProva = $stmtProva->get_result();
@@ -85,6 +96,8 @@ class ProvaNotaRepository
             ORDER BY usuario.nome"
         );
 
+        if (!$stmt) return [];
+
         $stmt->bind_param("i", $provaId);
         $stmt->execute();
 
@@ -108,6 +121,8 @@ class ProvaNotaRepository
         $stmt = $this->conn->prepare(
             "UPDATE prova_nota SET nota = ? WHERE prova_id = ? AND aluno_id = ?"
         );
+
+        if (!$stmt) return false;
 
         $nota = $provaNota->nota;
         $provaId = $provaNota->provaId;

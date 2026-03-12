@@ -2,34 +2,102 @@
 
 namespace App\Validators;
 
+use App\DTOs\ProvaNotaDTO;
+
 class ProvaNotaValidator
 {
-    public function validateGrade($nota)
+    private ProvaNotaDTO $dto;
+
+    public function __construct(ProvaNotaDTO $dto)
     {
-        if (!is_numeric($nota)) {
+        $this->dto = $dto;
+    }
+
+    public function validateCreate(): array
+    {
+        if (!$this->dto->provaId || !$this->dto->alunoId || $this->dto->nota === '') {
             return [
                 'success' => false,
-                'message' => 'Grade must be a number.'
+                'message' => 'Preencha todos os campos obrigatórios.',
+                'status' => 422
             ];
         }
 
-        $nota = (float) $nota;
+        $gradeValidation = $this->validateGrade();
+        if (!$gradeValidation['success']) {
+            return $gradeValidation;
+        }
 
-        if ($nota < 0 || $nota > 100) {
+        return [
+            'success' => true,
+            'message' => 'Validação realizada com sucesso.',
+            'status' => 201
+        ];
+    }
+
+    public function validateUpdate(): array
+    {
+        if (!$this->dto->provaId || !$this->dto->alunoId || $this->dto->nota === '') {
             return [
                 'success' => false,
-                'message' => 'Grade must be between 0 and 100.'
+                'message' => 'Preencha todos os campos obrigatórios.',
+                'status' => 422
+            ];
+        }
+
+        $gradeValidation = $this->validateGrade();
+        if (!$gradeValidation['success']) {
+            return $gradeValidation;
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Validação realizada com sucesso.',
+            'status' => 200
+        ];
+    }
+
+    public function validateDelete(): array
+    {
+        if (!$this->dto->provaId || !$this->dto->alunoId) {
+            return [
+                'success' => false,
+                'message' => 'ID da prova e do aluno são obrigatórios.',
+                'status' => 422
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Grade is valid.'
+            'message' => 'Validação realizada com sucesso.',
+            'status' => 200
         ];
     }
 
-    public function validateCreate($prova_id, $aluno_id, $nota)
+    private function validateGrade(): array
     {
-        return $this->validateGrade($nota);
+        if (!is_numeric($this->dto->nota)) {
+            return [
+                'success' => false,
+                'message' => 'Nota deve ser um número.',
+                'status' => 422
+            ];
+        }
+
+        $nota = (float) $this->dto->nota;
+
+        if ($nota < 0 || $nota > 100) {
+            return [
+                'success' => false,
+                'message' => 'Nota deve estar entre 0 e 100.',
+                'status' => 422
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Nota válida.',
+            'status' => 200
+        ];
     }
 }

@@ -13,14 +13,15 @@ class AgendaRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(Agenda $agenda): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO horarios_aula (dia_semana, inicio, fim, disciplina) VALUES (?, ?, ?, ?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "ssss",
@@ -42,17 +43,24 @@ class AgendaRepository
         return false;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM horarios_aula WHERE id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -60,9 +68,6 @@ class AgendaRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL */
-    /* ============================== */
     public function findAll(): array
     {
         $stmt = $this->conn->prepare(
@@ -76,7 +81,16 @@ class AgendaRepository
             ORDER BY FIELD(dia_semana,'segunda','terca','quarta','quinta','sexta'), inicio"
         );
 
-        $stmt->execute();
+        if (!$stmt) {
+            return [];
+        }
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $agendas = [];
@@ -89,25 +103,35 @@ class AgendaRepository
         return $agendas;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(Agenda $agenda): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE horarios_aula SET dia_semana = ?, inicio = ?, fim = ?, disciplina = ? WHERE id = ?"
         );
 
-        $diaSemana = $agenda->diaSemana;
-        $inicio = $agenda->inicio;
-        $fim = $agenda->fim;
-        $disciplina = $agenda->disciplina;
-        $id = $agenda->id;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("ssssi", $diaSemana, $inicio, $fim, $disciplina, $id);
+        $stmt->bind_param(
+            "ssssi",
+            $agenda->diaSemana,
+            $agenda->inicio,
+            $agenda->fim,
+            $agenda->disciplina,
+            $agenda->id
+        );
+
         $executou = $stmt->execute();
 
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
+
+        $atualizou = $stmt->affected_rows > 0;
+
         $stmt->close();
-        return $executou;
+        return $atualizou;
     }
 }

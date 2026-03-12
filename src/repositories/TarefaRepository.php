@@ -13,14 +13,15 @@ class TarefaRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(Tarefa $tarefa): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO tarefa (titulo, descricao, data_entrega) VALUES (?, ?, ?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "sss",
@@ -41,17 +42,24 @@ class TarefaRepository
         return false;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM tarefa WHERE id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -59,16 +67,22 @@ class TarefaRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL */
-    /* ============================== */
     public function findAll(): array
     {
         $stmt = $this->conn->prepare(
             "SELECT id, titulo, descricao, data_entrega FROM tarefa ORDER BY id DESC"
         );
 
-        $stmt->execute();
+        if (!$stmt) {
+            return [];
+        }
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $tarefas = [];
@@ -81,22 +95,30 @@ class TarefaRepository
         return $tarefas;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(Tarefa $tarefa): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE tarefa SET titulo = ?, descricao = ?, data_entrega = ? WHERE id = ?"
         );
 
-        $titulo      = $tarefa->titulo;
-        $descricao   = $tarefa->descricao;
-        $dataEntrega = $tarefa->dataEntrega;
-        $id          = $tarefa->id;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("sssi", $titulo, $descricao, $dataEntrega, $id);
-        $stmt->execute();
+        $stmt->bind_param(
+            "sssi",
+            $tarefa->titulo,
+            $tarefa->descricao,
+            $tarefa->dataEntrega,
+            $tarefa->id
+        );
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $atualizou = $stmt->affected_rows > 0;
 

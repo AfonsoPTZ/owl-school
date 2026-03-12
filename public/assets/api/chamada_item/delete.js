@@ -5,7 +5,7 @@ async function excluirChamadaItem(chamadaId, alunoId) {
   const resposta = await fetch("/owl-school/src/api/chamada_item/index.php", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chamada_id: chamadaId, aluno_id: alunoId })
+    body: JSON.stringify({ chamadaId: chamadaId, alunoId: alunoId })
   });
 
   const resultado = await resposta.json();

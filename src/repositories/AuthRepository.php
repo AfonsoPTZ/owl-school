@@ -28,4 +28,24 @@ class AuthRepository
         $stmt->close();
         return $usuario;
     }
+
+    /* ============================== */
+    /* FIND BY EMAIL */
+    /* ============================== */
+    public function findByEmail(string $email): ?array
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT id, nome, email, senha, tipo_usuario FROM usuario WHERE email = ?"
+        );
+
+        if (!$stmt) return null;
+
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $usuario = $resultado->fetch_assoc();
+
+        $stmt->close();
+        return $usuario;
+    }
 }

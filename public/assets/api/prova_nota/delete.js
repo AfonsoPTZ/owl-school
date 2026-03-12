@@ -5,7 +5,7 @@ async function excluirNota(provaId, alunoId) {
   const resposta = await fetch("/owl-school/src/api/prova_nota/index.php", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prova_id: provaId, aluno_id: alunoId })
+    body: JSON.stringify({ provaId: provaId, alunoId: alunoId })
   });
 
   const resultado = await resposta.json();

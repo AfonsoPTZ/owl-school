@@ -23,8 +23,8 @@ async function salvarEdicaoChamadaItem() {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chamada_id: idChamadaAtualEditar,
-      aluno_id: idAlunoAtualEditarChamada,
+      chamadaId: idChamadaAtualEditar,
+      alunoId: idAlunoAtualEditarChamada,
       status
     })
   });

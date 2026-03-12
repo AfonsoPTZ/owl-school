@@ -29,8 +29,8 @@ async function salvarCriacaoNota() {
 
   const formularioDados = new FormData();
 
-  formularioDados.append("prova_id", idProvaAtual);
-  formularioDados.append("aluno_id", idAlunoAtual);
+  formularioDados.append("provaId", idProvaAtual);
+  formularioDados.append("alunoId", idAlunoAtual);
   formularioDados.append("nota", nota);
 
 

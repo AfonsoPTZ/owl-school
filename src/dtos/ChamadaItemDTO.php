@@ -4,14 +4,15 @@ namespace App\DTOs;
 
 class ChamadaItemDTO
 {
-    public $chamada_id;
-    public $aluno_id;
+    public int $chamadaId;
+    public int $alunoId;
     public string $status;
 
     public function __construct(array $dados)
     {
-        $this->chamada_id = (int) ($dados['chamada_id'] ?? 0);
-        $this->aluno_id = (int) ($dados['aluno_id'] ?? 0);
+
+        $this->chamadaId = (int) ($dados['chamadaId'] ?? $dados['chamada_id'] ?? 0);
+        $this->alunoId = (int) ($dados['alunoId'] ?? $dados['aluno_id'] ?? 0);
         $this->status = trim($dados['status'] ?? '');
     }
 }

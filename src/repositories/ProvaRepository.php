@@ -13,14 +13,15 @@ class ProvaRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(Prova $prova): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO prova (titulo, data) VALUES (?, ?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "ss",
@@ -40,17 +41,24 @@ class ProvaRepository
         return false;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM prova WHERE id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -58,16 +66,22 @@ class ProvaRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL */
-    /* ============================== */
     public function findAll(): array
     {
         $stmt = $this->conn->prepare(
             "SELECT id, titulo, data FROM prova ORDER BY data DESC, id DESC"
         );
 
-        $stmt->execute();
+        if (!$stmt) {
+            return [];
+        }
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $provas = [];
@@ -80,23 +94,33 @@ class ProvaRepository
         return $provas;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(Prova $prova): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE prova SET titulo = ?, data = ? WHERE id = ?"
         );
 
-        $titulo = $prova->titulo;
-        $data = $prova->data;
-        $id = $prova->id;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("ssi", $titulo, $data, $id);
+        $stmt->bind_param(
+            "ssi",
+            $prova->titulo,
+            $prova->data,
+            $prova->id
+        );
+
         $executou = $stmt->execute();
 
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
+
+        $atualizou = $stmt->affected_rows > 0;
+
         $stmt->close();
-        return $executou;
+        return $atualizou;
     }
 }

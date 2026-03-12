@@ -13,14 +13,15 @@ class ChamadaRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(Chamada $chamada): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO chamada (data) VALUES (?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "s",
@@ -39,17 +40,24 @@ class ChamadaRepository
         return false;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM chamada WHERE id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -57,16 +65,22 @@ class ChamadaRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL */
-    /* ============================== */
     public function findAll(): array
     {
         $stmt = $this->conn->prepare(
             "SELECT id, data FROM chamada ORDER BY data DESC, id DESC"
         );
 
-        $stmt->execute();
+        if (!$stmt) {
+            return [];
+        }
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $chamadas = [];
@@ -79,22 +93,32 @@ class ChamadaRepository
         return $chamadas;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(Chamada $chamada): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE chamada SET data = ? WHERE id = ?"
         );
 
-        $data = $chamada->data;
-        $id = $chamada->id;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("si", $data, $id);
+        $stmt->bind_param(
+            "si",
+            $chamada->data,
+            $chamada->id
+        );
+
         $executou = $stmt->execute();
 
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
+
+        $atualizou = $stmt->affected_rows > 0;
+
         $stmt->close();
-        return $executou;
+        return $atualizou;
     }
 }

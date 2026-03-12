@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Validators\AgendaValidator;
 use App\DTOs\AgendaDTO;
 use App\Models\Agenda;
 use App\Repositories\AgendaRepository;
+use App\Validators\AgendaValidator;
 
 class AgendaService
 {
@@ -20,11 +20,8 @@ class AgendaService
 
     public function create(AgendaDTO $dto): array
     {
-        if (empty($dto->diaSemana) || empty($dto->inicio) || empty($dto->fim) || empty($dto->disciplina)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateCreate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->diaSemana, $dto->inicio, $dto->fim, $dto->disciplina);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -33,28 +30,24 @@ class AgendaService
         $criou = $this->repository->create($agenda);
 
         if (!$criou) {
-            return ["success" => false, "message" => "Erro ao criar horário."];
+            return [
+                'success' => false,
+                'message' => 'Error creating schedule.',
+                'status'  => 500
+            ];
         }
 
-        return ["success" => true, "message" => "Horário criado com sucesso.", "id" => $agenda->id];
-    }
-
-    public function findAll(): array
-    {
-        $agendas = $this->repository->findAll();
-        return ["success" => true, "agendas" => $agendas];
+        return [
+            'success' => true,
+            'message' => 'Schedule created successfully.',
+            'status'  => 201
+        ];
     }
 
     public function update(AgendaDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
-        }
-        if (empty($dto->diaSemana) || empty($dto->inicio) || empty($dto->fim) || empty($dto->disciplina)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateUpdate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->diaSemana, $dto->inicio, $dto->fim, $dto->disciplina);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -63,24 +56,68 @@ class AgendaService
         $atualizou = $this->repository->update($agenda);
 
         if (!$atualizou) {
-            return ["success" => false, "message" => "Agenda not found."];
+            return [
+                'success' => false,
+                'message' => 'Schedule not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Horário atualizado com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Schedule updated successfully.',
+            'status'  => 200
+        ];
     }
 
     public function delete(AgendaDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
+        $validacao = $this->validator->validateDelete($dto);
+
+        if (!$validacao['success']) {
+            return $validacao;
         }
 
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return ["success" => false, "message" => "Agenda not found."];
+            return [
+                'success' => false,
+                'message' => 'Schedule not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Horário deletado com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Schedule deleted successfully.',
+            'status'  => 200
+        ];
+    }
+
+    public function findAll(): array
+    {
+        $agendas = $this->repository->findAll();
+        
+        $porDia = [
+            'segunda' => [],
+            'terca' => [],
+            'quarta' => [],
+            'quinta' => [],
+            'sexta' => []
+        ];
+
+        foreach ($agendas as $agenda) {
+            $dia = $agenda['dia_semana'];
+            if (isset($porDia[$dia])) {
+                $porDia[$dia][] = $agenda;
+            }
+        }
+
+        return [
+            'success' => true,
+            'por_dia' => $porDia,
+            'status'  => 200
+        ];
     }
 }

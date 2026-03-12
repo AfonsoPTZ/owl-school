@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Validators\ComunicadoValidator;
 use App\DTOs\ComunicadoDTO;
 use App\Models\Comunicado;
 use App\Repositories\ComunicadoRepository;
+use App\Validators\ComunicadoValidator;
 
 class ComunicadoService
 {
@@ -20,11 +20,8 @@ class ComunicadoService
 
     public function create(ComunicadoDTO $dto): array
     {
-        if (empty($dto->titulo) || empty($dto->corpo)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateCreate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->titulo, $dto->corpo);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -33,28 +30,24 @@ class ComunicadoService
         $criou = $this->repository->create($comunicado);
 
         if (!$criou) {
-            return ["success" => false, "message" => "Erro ao criar comunicado."];
+            return [
+                'success' => false,
+                'message' => 'Error creating notice.',
+                'status'  => 500
+            ];
         }
 
-        return ["success" => true, "message" => "Comunicado criado com sucesso.", "id" => $comunicado->id];
-    }
-
-    public function findAll(): array
-    {
-        $comunicados = $this->repository->findAll();
-        return ["success" => true, "comunicados" => $comunicados];
+        return [
+            'success' => true,
+            'message' => 'Notice created successfully.',
+            'status'  => 201
+        ];
     }
 
     public function update(ComunicadoDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
-        }
-        if (empty($dto->titulo) || empty($dto->corpo)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateUpdate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->titulo, $dto->corpo);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -63,24 +56,53 @@ class ComunicadoService
         $atualizou = $this->repository->update($comunicado);
 
         if (!$atualizou) {
-            return ["success" => false, "message" => "Comunicado not found."];
+            return [
+                'success' => false,
+                'message' => 'Notice not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Comunicado atualizado com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Notice updated successfully.',
+            'status'  => 200
+        ];
     }
 
     public function delete(ComunicadoDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
+        $validacao = $this->validator->validateDelete($dto);
+
+        if (!$validacao['success']) {
+            return $validacao;
         }
 
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return ["success" => false, "message" => "Comunicado not found."];
+            return [
+                'success' => false,
+                'message' => 'Notice not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Comunicado deletado com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Notice deleted successfully.',
+            'status'  => 200
+        ];
+    }
+
+    public function findAll(): array
+    {
+        $comunicados = $this->repository->findAll();
+
+        return [
+            'success' => true,
+            'comunicados' => $comunicados,
+            'status'  => 200
+        ];
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Validators\AdvertenciaValidator;
 use App\DTOs\AdvertenciaDTO;
 use App\Models\Advertencia;
 use App\Repositories\AdvertenciaRepository;
+use App\Validators\AdvertenciaValidator;
 
 class AdvertenciaService
 {
@@ -20,11 +20,8 @@ class AdvertenciaService
 
     public function create(AdvertenciaDTO $dto): array
     {
-        if (empty($dto->titulo) || empty($dto->descricao) || empty($dto->aluno_id)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateCreate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->titulo, $dto->descricao);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -33,28 +30,24 @@ class AdvertenciaService
         $criou = $this->repository->createWithAluno($advertencia, $dto->aluno_id);
 
         if (!$criou) {
-            return ["success" => false, "message" => "Erro ao criar advertência."];
+            return [
+                'success' => false,
+                'message' => 'Error creating warning.',
+                'status'  => 500
+            ];
         }
 
-        return ["success" => true, "message" => "Advertência criada com sucesso.", "id" => $advertencia->id];
-    }
-
-    public function findAll(): array
-    {
-        $advertencias = $this->repository->findAll();
-        return ["success" => true, "advertencias" => $advertencias];
+        return [
+            'success' => true,
+            'message' => 'Warning created successfully.',
+            'status'  => 201
+        ];
     }
 
     public function update(AdvertenciaDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
-        }
-        if (empty($dto->titulo) || empty($dto->descricao)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateUpdate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->titulo, $dto->descricao);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -63,24 +56,53 @@ class AdvertenciaService
         $atualizou = $this->repository->update($advertencia);
 
         if (!$atualizou) {
-            return ["success" => false, "message" => "Advertencia not found."];
+            return [
+                'success' => false,
+                'message' => 'Warning not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Advertência atualizada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Warning updated successfully.',
+            'status'  => 200
+        ];
     }
 
     public function delete(AdvertenciaDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
+        $validacao = $this->validator->validateDelete($dto);
+
+        if (!$validacao['success']) {
+            return $validacao;
         }
 
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return ["success" => false, "message" => "Advertencia not found."];
+            return [
+                'success' => false,
+                'message' => 'Warning not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Advertência deletada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Warning deleted successfully.',
+            'status'  => 200
+        ];
+    }
+
+    public function findAll(): array
+    {
+        $advertencias = $this->repository->findAll();
+
+        return [
+            'success' => true,
+            'advertencias' => $advertencias,
+            'status'  => 200
+        ];
     }
 }

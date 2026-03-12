@@ -13,14 +13,15 @@ class AdvertenciaRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE  */
-    /* ============================== */
     public function createWithAluno(Advertencia $advertencia, int $aluno_id): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO advertencia (titulo, descricao) VALUES (?, ?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "ss",
@@ -33,10 +34,14 @@ class AdvertenciaRepository
         if ($executou && $stmt->affected_rows > 0) {
             $advertencia->id = $this->conn->insert_id;
 
-            // Inserir a relação na tabela aluno_advertencia
             $stmt_relacao = $this->conn->prepare(
                 "INSERT INTO aluno_advertencia (advertencia_id, aluno_id) VALUES (?, ?)"
             );
+
+            if (!$stmt_relacao) {
+                $stmt->close();
+                return false;
+            }
 
             $stmt_relacao->bind_param(
                 "ii",
@@ -46,7 +51,6 @@ class AdvertenciaRepository
 
             $relacao_executou = $stmt_relacao->execute();
             $stmt_relacao->close();
-
             $stmt->close();
             return $relacao_executou;
         }
@@ -55,17 +59,24 @@ class AdvertenciaRepository
         return false;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM advertencia WHERE id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -73,9 +84,6 @@ class AdvertenciaRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL */
-    /* ============================== */
     public function findAll(): array
     {
         $stmt = $this->conn->prepare(
@@ -92,7 +100,16 @@ class AdvertenciaRepository
             ORDER BY advertencia.id DESC"
         );
 
-        $stmt->execute();
+        if (!$stmt) {
+            return [];
+        }
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $advertencias = [];
@@ -105,23 +122,33 @@ class AdvertenciaRepository
         return $advertencias;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(Advertencia $advertencia): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE advertencia SET titulo = ?, descricao = ? WHERE id = ?"
         );
 
-        $titulo = $advertencia->titulo;
-        $descricao = $advertencia->descricao;
-        $id = $advertencia->id;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("ssi", $titulo, $descricao, $id);
+        $stmt->bind_param(
+            "ssi",
+            $advertencia->titulo,
+            $advertencia->descricao,
+            $advertencia->id
+        );
+
         $executou = $stmt->execute();
 
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
+
+        $atualizou = $stmt->affected_rows > 0;
+
         $stmt->close();
-        return $executou;
+        return $atualizou;
     }
 }

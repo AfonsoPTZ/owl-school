@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Validators\ChamadaItemValidator;
 use App\DTOs\ChamadaItemDTO;
 use App\Models\ChamadaItem;
 use App\Repositories\ChamadaItemRepository;
+use App\Validators\ChamadaItemValidator;
 
 class ChamadaItemService
 {
@@ -20,11 +20,8 @@ class ChamadaItemService
 
     public function create(ChamadaItemDTO $dto): array
     {
-        if (!$dto->chamadaId || !$dto->alunoId || empty($dto->status)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateCreate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->chamadaId, $dto->alunoId, $dto->status);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -33,25 +30,33 @@ class ChamadaItemService
         $criou = $this->repository->create($chamadaItem);
 
         if (!$criou) {
-            return ["success" => false, "message" => "Erro ao criar chamada item."];
+            return [
+                'success' => false,
+                'message' => 'Error creating attendance item.',
+                'status'  => 500
+            ];
         }
 
-        return ["success" => true, "message" => "Chamada item criada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Attendance item created successfully.',
+            'status'  => 201
+        ];
     }
 
     public function findAll(): array
     {
-        $chamadaItems = $this->repository->findAll();
-        return ["success" => true, "chamadaItems" => $chamadaItems];
+        return [
+            'success' => true,
+            'chamadaItems' => [],
+            'status'  => 200
+        ];
     }
 
     public function update(ChamadaItemDTO $dto): array
     {
-        if (!$dto->chamadaId || !$dto->alunoId || empty($dto->status)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateUpdate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->chamadaId, $dto->alunoId, $dto->status);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -60,24 +65,42 @@ class ChamadaItemService
         $atualizou = $this->repository->update($chamadaItem);
 
         if (!$atualizou) {
-            return ["success" => false, "message" => "Chamada item not found."];
+            return [
+                'success' => false,
+                'message' => 'Attendance item not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Chamada item atualizada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Attendance item updated successfully.',
+            'status'  => 200
+        ];
     }
 
     public function delete(ChamadaItemDTO $dto): array
     {
-        if (!$dto->chamadaId || !$dto->alunoId) {
-            return ["success" => false, "message" => "ID da chamada e do aluno são obrigatórios."];
+        $validacao = $this->validator->validateDelete($dto);
+
+        if (!$validacao['success']) {
+            return $validacao;
         }
 
         $deletou = $this->repository->delete((int) $dto->chamadaId, (int) $dto->alunoId);
 
         if (!$deletou) {
-            return ["success" => false, "message" => "Chamada item not found."];
+            return [
+                'success' => false,
+                'message' => 'Attendance item not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Chamada item deletada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Attendance item deleted successfully.',
+            'status'  => 200
+        ];
     }
 }

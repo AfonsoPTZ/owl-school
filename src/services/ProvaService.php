@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Validators\ProvaValidator;
 use App\DTOs\ProvaDTO;
 use App\Models\Prova;
 use App\Repositories\ProvaRepository;
+use App\Validators\ProvaValidator;
 
 class ProvaService
 {
@@ -20,11 +20,8 @@ class ProvaService
 
     public function create(ProvaDTO $dto): array
     {
-        if (empty($dto->titulo) || empty($dto->data)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateCreate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->titulo, $dto->data);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -33,28 +30,24 @@ class ProvaService
         $criou = $this->repository->create($prova);
 
         if (!$criou) {
-            return ["success" => false, "message" => "Erro ao criar prova."];
+            return [
+                'success' => false,
+                'message' => 'Error creating test.',
+                'status'  => 500
+            ];
         }
 
-        return ["success" => true, "message" => "Prova criada com sucesso.", "id" => $prova->id];
-    }
-
-    public function findAll(): array
-    {
-        $provas = $this->repository->findAll();
-        return ["success" => true, "provas" => $provas];
+        return [
+            'success' => true,
+            'message' => 'Test created successfully.',
+            'status'  => 201
+        ];
     }
 
     public function update(ProvaDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
-        }
-        if (empty($dto->titulo) || empty($dto->data)) {
-            return ["success" => false, "message" => "Preencha todos os campos obrigatórios."];
-        }
+        $validacao = $this->validator->validateUpdate($dto);
 
-        $validacao = $this->validator->validateCreate($dto->titulo, $dto->data);
         if (!$validacao['success']) {
             return $validacao;
         }
@@ -63,24 +56,53 @@ class ProvaService
         $atualizou = $this->repository->update($prova);
 
         if (!$atualizou) {
-            return ["success" => false, "message" => "Prova not found."];
+            return [
+                'success' => false,
+                'message' => 'Test not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Prova atualizada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Test updated successfully.',
+            'status'  => 200
+        ];
     }
 
     public function delete(ProvaDTO $dto): array
     {
-        if (!$dto->id) {
-            return ["success" => false, "message" => "ID não informado."];
+        $validacao = $this->validator->validateDelete($dto);
+
+        if (!$validacao['success']) {
+            return $validacao;
         }
 
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return ["success" => false, "message" => "Prova not found."];
+            return [
+                'success' => false,
+                'message' => 'Test not found.',
+                'status'  => 404
+            ];
         }
 
-        return ["success" => true, "message" => "Prova deletada com sucesso."];
+        return [
+            'success' => true,
+            'message' => 'Test deleted successfully.',
+            'status'  => 200
+        ];
+    }
+
+    public function findAll(): array
+    {
+        $provas = $this->repository->findAll();
+
+        return [
+            'success' => true,
+            'provas' => $provas,
+            'status'  => 200
+        ];
     }
 }

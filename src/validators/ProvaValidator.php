@@ -2,9 +2,11 @@
 
 namespace App\Validators;
 
+use App\DTOs\ProvaDTO;
+
 class ProvaValidator
 {
-    public function validateDate($date)
+    private function validateDate(string $date): array
     {
         $format = 'Y-m-d';
         $d = \DateTime::createFromFormat($format, $date);
@@ -12,26 +14,58 @@ class ProvaValidator
         if (!$d || $d->format($format) !== $date) {
             return [
                 'success' => false,
-                'message' => 'Test date format must be YYYY-MM-DD.'
+                'message' => 'Test date format must be YYYY-MM-DD.',
+                'status'  => 422
             ];
         }
 
-        return [
-            'success' => true,
-            'message' => 'Test date is valid.'
-        ];
+        return ['success' => true];
     }
 
-    public function validateCreate($titulo, $data)
+    public function validateCreate(ProvaDTO $dto): array
     {
-        $dateValidation = $this->validateDate($data);
-        if (!$dateValidation['success']) {
-            return $dateValidation;
+        if (empty(trim($dto->titulo ?? '')) || empty(trim($dto->data ?? ''))) {
+            return [
+                'success' => false,
+                'message' => 'Fill in all required fields.',
+                'status'  => 422
+            ];
         }
 
-        return [
-            'success' => true,
-            'message' => 'Test data is valid.'
-        ];
+        return $this->validateDate($dto->data);
+    }
+
+    public function validateUpdate(ProvaDTO $dto): array
+    {
+        if (empty($dto->id)) {
+            return [
+                'success' => false,
+                'message' => 'ID not provided.',
+                'status'  => 422
+            ];
+        }
+
+        if (empty(trim($dto->titulo ?? '')) || empty(trim($dto->data ?? ''))) {
+            return [
+                'success' => false,
+                'message' => 'Fill in all required fields.',
+                'status'  => 422
+            ];
+        }
+
+        return $this->validateDate($dto->data);
+    }
+
+    public function validateDelete(ProvaDTO $dto): array
+    {
+        if (empty($dto->id)) {
+            return [
+                'success' => false,
+                'message' => 'ID not provided.',
+                'status'  => 422
+            ];
+        }
+
+        return ['success' => true];
     }
 }

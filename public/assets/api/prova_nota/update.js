@@ -26,8 +26,8 @@ async function salvarEdicaoNota() {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      prova_id: idProvaAtualEditar,
-      aluno_id: idAlunoAtualEditar,
+      provaId: idProvaAtualEditar,
+      alunoId: idAlunoAtualEditar,
       nota
     })
   });

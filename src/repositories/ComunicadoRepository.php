@@ -13,14 +13,15 @@ class ComunicadoRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(Comunicado $comunicado): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO comunicado (titulo, corpo) VALUES (?, ?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "ss",
@@ -40,17 +41,24 @@ class ComunicadoRepository
         return false;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM comunicado WHERE id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -58,16 +66,22 @@ class ComunicadoRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL */
-    /* ============================== */
     public function findAll(): array
     {
         $stmt = $this->conn->prepare(
             "SELECT id, titulo, corpo FROM comunicado ORDER BY id DESC"
         );
 
-        $stmt->execute();
+        if (!$stmt) {
+            return [];
+        }
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $comunicados = [];
@@ -80,23 +94,33 @@ class ComunicadoRepository
         return $comunicados;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(Comunicado $comunicado): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE comunicado SET titulo = ?, corpo = ? WHERE id = ?"
         );
 
-        $titulo = $comunicado->titulo;
-        $corpo = $comunicado->corpo;
-        $id = $comunicado->id;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("ssi", $titulo, $corpo, $id);
+        $stmt->bind_param(
+            "ssi",
+            $comunicado->titulo,
+            $comunicado->corpo,
+            $comunicado->id
+        );
+
         $executou = $stmt->execute();
 
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
+
+        $atualizou = $stmt->affected_rows > 0;
+
         $stmt->close();
-        return $executou;
+        return $atualizou;
     }
 }

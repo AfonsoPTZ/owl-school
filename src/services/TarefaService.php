@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Validators\TarefaValidator;
 use App\DTOs\TarefaDTO;
 use App\Models\Tarefa;
 use App\Repositories\TarefaRepository;
+use App\Validators\TarefaValidator;
 
 class TarefaService
 {
@@ -20,20 +20,9 @@ class TarefaService
 
     public function create(TarefaDTO $dto): array
     {
-        if (empty($dto->titulo) || empty($dto->descricao) || empty($dto->data_entrega)) {
-            return [
-                "success" => false,
-                "message" => "Fill in all required fields."
-            ];
-        }
+        $validacao = $this->validator->validateCreate($dto);
 
-        $validacao = $this->validator->validateCreate(
-            $dto->titulo,
-            $dto->descricao,
-            $dto->data_entrega
-        );
-
-        if (!$validacao["success"]) {
+        if (!$validacao['success']) {
             return $validacao;
         }
 
@@ -47,64 +36,24 @@ class TarefaService
 
         if (!$criou) {
             return [
-                "success" => false,
-                "message" => "Error creating task."
+                'success' => false,
+                'message' => 'Error creating task.',
+                'status'  => 500
             ];
         }
 
         return [
-            "success" => true,
-            "message" => "Task created successfully."
-        ];
-    }
-
-    public function delete(TarefaDTO $dto): array
-    {
-        if (!$dto->id) {
-            return [
-                "success" => false,
-                "message" => "ID not provided."
-            ];
-        }
-
-        $deletou = $this->repository->delete((int) $dto->id);
-
-        if (!$deletou) {
-            return [
-                "success" => false,
-                "message" => "Task not found."
-            ];
-        }
-
-        return [
-            "success" => true,
-            "message" => "Task deleted successfully."
+            'success' => true,
+            'message' => 'Task created successfully.',
+            'status'  => 201
         ];
     }
 
     public function update(TarefaDTO $dto): array
     {
-        if (!$dto->id) {
-            return [
-                "success" => false,
-                "message" => "ID not provided."
-            ];
-        }
+        $validacao = $this->validator->validateUpdate($dto);
 
-        if (empty($dto->titulo) || empty($dto->descricao) || empty($dto->data_entrega)) {
-            return [
-                "success" => false,
-                "message" => "Fill in all required fields."
-            ];
-        }
-
-        $validacao = $this->validator->validateCreate(
-            $dto->titulo,
-            $dto->descricao,
-            $dto->data_entrega
-        );
-
-        if (!$validacao["success"]) {
+        if (!$validacao['success']) {
             return $validacao;
         }
 
@@ -119,14 +68,41 @@ class TarefaService
 
         if (!$atualizou) {
             return [
-                "success" => false,
-                "message" => "Task not found."
+                'success' => false,
+                'message' => 'Task not found.',
+                'status'  => 404
             ];
         }
 
         return [
-            "success" => true,
-            "message" => "Task updated successfully."
+            'success' => true,
+            'message' => 'Task updated successfully.',
+            'status'  => 200
+        ];
+    }
+
+    public function delete(TarefaDTO $dto): array
+    {
+        $validacao = $this->validator->validateDelete($dto);
+
+        if (!$validacao['success']) {
+            return $validacao;
+        }
+
+        $deletou = $this->repository->delete((int) $dto->id);
+
+        if (!$deletou) {
+            return [
+                'success' => false,
+                'message' => 'Task not found.',
+                'status'  => 404
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Task deleted successfully.',
+            'status'  => 200
         ];
     }
 
@@ -135,8 +111,9 @@ class TarefaService
         $tarefas = $this->repository->findAll();
 
         return [
-            "success" => true,
-            "tarefas" => $tarefas
+            'success' => true,
+            'tarefas' => $tarefas,
+            'status'  => 200
         ];
     }
 }

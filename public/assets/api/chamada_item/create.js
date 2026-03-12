@@ -27,8 +27,8 @@ async function salvarChamadaItem() {
 
   const formularioDados = new FormData();
 
-  formularioDados.append("chamada_id", idChamadaAtual);
-  formularioDados.append("aluno_id", idAlunoAtualChamada);
+  formularioDados.append("chamadaId", idChamadaAtual);
+  formularioDados.append("alunoId", idAlunoAtualChamada);
   formularioDados.append("status", status);
 
 

@@ -13,14 +13,15 @@ class ChamadaItemRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(ChamadaItem $chamadaItem): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO chamada_item (chamada_id, aluno_id, status) VALUES (?, ?, ?)"
         );
+
+        if (!$stmt) {
+            return false;
+        }
 
         $stmt->bind_param(
             "iis",
@@ -35,17 +36,24 @@ class ChamadaItemRepository
         return $executou;
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $chamadaId, int $alunoId): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM chamada_item WHERE chamada_id = ? AND aluno_id = ?"
         );
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("ii", $chamadaId, $alunoId);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
 
         $deletou = $stmt->affected_rows > 0;
 
@@ -53,9 +61,6 @@ class ChamadaItemRepository
         return $deletou;
     }
 
-    /* ============================== */
-    /* READ / FIND ALL BY CHAMADA */
-    /* ============================== */
     public function findByChamada(int $chamadaId): array
     {
         $stmt = $this->conn->prepare(
@@ -76,8 +81,18 @@ class ChamadaItemRepository
             ORDER BY usuario.nome"
         );
 
+        if (!$stmt) {
+            return [];
+        }
+
         $stmt->bind_param("i", $chamadaId);
-        $stmt->execute();
+
+        $executou = $stmt->execute();
+
+        if (!$executou) {
+            $stmt->close();
+            return [];
+        }
 
         $resultado = $stmt->get_result();
         $items = [];
@@ -90,23 +105,33 @@ class ChamadaItemRepository
         return $items;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(ChamadaItem $chamadaItem): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE chamada_item SET status = ? WHERE chamada_id = ? AND aluno_id = ?"
         );
 
-        $status = $chamadaItem->status;
-        $chamadaId = $chamadaItem->chamadaId;
-        $alunoId = $chamadaItem->alunoId;
+        if (!$stmt) {
+            return false;
+        }
 
-        $stmt->bind_param("sii", $status, $chamadaId, $alunoId);
+        $stmt->bind_param(
+            "sii",
+            $chamadaItem->status,
+            $chamadaItem->chamadaId,
+            $chamadaItem->alunoId
+        );
+
         $executou = $stmt->execute();
 
+        if (!$executou) {
+            $stmt->close();
+            return false;
+        }
+
+        $atualizou = $stmt->affected_rows > 0;
+
         $stmt->close();
-        return $executou;
+        return $atualizou;
     }
 }
