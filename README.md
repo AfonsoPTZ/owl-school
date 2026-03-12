@@ -110,6 +110,7 @@ Toda documentação técnica está em `/docs/`:
 
 - **[HIGHLIGHTS.md](docs/HIGHLIGHTS.md)** - Destaques do projeto ⭐
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Arquitetura e fluxo
+- **[ENDPOINTS.md](docs/ENDPOINTS.md)** - Contrato dos endpoints 📋
 - **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Como criar novo módulo
 - **[LOGGER.md](docs/LOGGER.md)** - Sistema de logging
 
@@ -167,7 +168,20 @@ Use as credenciais no `src/db/seed.sql`:
 
 ---
 
-## 🔐 Segurança
+## 🧪 Testes
+
+Flow tests que validam o fluxo completo da aplicação:
+
+```bash
+php tests/tarefa_flow_test.php
+```
+
+Cada teste passa por todas as camadas:
+**Controller → Service → Repository → Database**
+
+Veja [tests/README.md](tests/README.md) para mais informações.
+
+---
 
 - ✅ Prepared Statements em tudo (sem SQL Injection)
 - ✅ Validação rigorosa de input
