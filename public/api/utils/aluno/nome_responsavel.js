@@ -1,0 +1,12 @@
+async function carregarNomeResponsavel() {
+  const response = await fetch("/owl-school/app/Routes/utils_aluno.php?action=getNomeResponsavel", { method: "POST" });
+  const resultado = await response.json();
+  const container = document.getElementById("nomeResponsavel");
+    container.innerHTML = "";
+    container.insertAdjacentHTML("beforeend", `<span>${resultado.nome_responsavel}</span>`);
+
+}
+
+document.addEventListener("DOMContentLoaded", carregarNomeResponsavel);
+
+

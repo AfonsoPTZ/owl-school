@@ -40,12 +40,18 @@
   <!-- ============================== -->
   <!-- Scripts -->
   <!-- ============================== -->
-  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
-  <script src="/owl-school/public/assets/api/auth/logout.js"></script>
+  <script defer src="/owl-school/public/api/auth/authme.js"></script>
+  <script defer src="/owl-school/public/api/auth/logout.js"></script>
 
-  <script src="/owl-school/public/assets/api/utils/get_name.js"></script>
+  <script src="/owl-school/public/api/utils/get_name.js"></script>
 
-  <script> protectPage(["professor"]); </script>
+  <script>
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", function() { protectPage(["professor"]); });
+} else {
+  protectPage(["professor"]);
+}
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -53,4 +59,8 @@
 
 </body>
 </html>
+
+
+
+
 

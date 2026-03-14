@@ -1,4 +1,4 @@
-console.log("cursor.js carregado");
+
 
 (() => {
   const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;

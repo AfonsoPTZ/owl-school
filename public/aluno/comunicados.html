@@ -71,18 +71,27 @@
   <!-- ============================== -->
   <!-- Scripts -->
   <!-- ============================== -->
-  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
-  <script src="/owl-school/public/assets/api/auth/logout.js" defer></script>
+  <script defer src="/owl-school/public/api/auth/authme.js"></script>
+  <script src="/owl-school/public/api/auth/logout.js" defer></script>
 
-  <script src="/owl-school/public/assets/api/tarefa/read.js"></script>
-  <script src="/owl-school/public/assets/api/comunicado/read.js"></script>
-  <script src="/owl-school/public/assets/api/utils/aluno/advertencia_aluno.js"></script>
+  <script src="/owl-school/public/api/tarefa/read.js"></script>
+  <script src="/owl-school/public/api/comunicado/read.js"></script>
+  <script src="/owl-school/public/api/utils/aluno/advertencia_aluno.js"></script>
 
-  <script> protectPage(["aluno"]); </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      protectPage(["aluno"]);
+    });
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="/owl-school/public/aluno/navbar.js"></script>
 
 </body>
 </html>
+
+
+
+
 

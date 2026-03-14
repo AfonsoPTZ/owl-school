@@ -65,14 +65,16 @@
     </main>
   </div>
 
-  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
-  <script src="/owl-school/public/assets/api/auth/logout.js" defer></script>
+  <script defer src="/owl-school/public/api/auth/authme.js"></script>
+  <script src="/owl-school/public/api/auth/logout.js" defer></script>
 
-  <script src="/owl-school/public/assets/api/tarefa/read.js"></script>
-  <script src="/owl-school/public/assets/api/comunicado/read.js"></script>
-  <script src="/owl-school/public/assets/api/utils/responsavel/advertencia_filho.js"></script>
+  <script src="/owl-school/public/api/tarefa/read.js"></script>
+  <script src="/owl-school/public/api/comunicado/read.js"></script>
+  <script src="/owl-school/public/api/utils/responsavel/advertencia_filho.js"></script>
 
-  <script> protectPage(["responsavel"]); </script>
+  <script>
+document.addEventListener("DOMContentLoaded", function() { protectPage(["responsavel"]); });
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -80,4 +82,9 @@
 
 </body>
 </html>
+
+
+
+
+
 

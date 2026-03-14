@@ -97,15 +97,17 @@
   <!-- ============================== -->
   <!-- Scripts -->
   <!-- ============================== -->
-  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
-  <script src="/owl-school/public/assets/api/auth/logout.js" defer></script>
+  <script defer src="/owl-school/public/api/auth/authme.js"></script>
+  <script src="/owl-school/public/api/auth/logout.js" defer></script>
 
-  <script src="/owl-school/public/assets/api/tarefa/read.js"></script>
-  <script src="/owl-school/public/assets/api/tarefa/create.js"></script>
-  <script src="/owl-school/public/assets/api/tarefa/delete.js"></script>
-  <script src="/owl-school/public/assets/api/tarefa/update.js"></script>
+  <script src="/owl-school/public/api/tarefa/read.js"></script>
+  <script src="/owl-school/public/api/tarefa/create.js"></script>
+  <script src="/owl-school/public/api/tarefa/delete.js"></script>
+  <script src="/owl-school/public/api/tarefa/update.js"></script>
 
-  <script> protectPage(["professor"]); </script>
+  <script>
+document.addEventListener("DOMContentLoaded", function() { protectPage(["professor"]); });
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -113,4 +115,9 @@
 
 </body>
 </html>
+
+
+
+
+
 

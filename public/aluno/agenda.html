@@ -133,12 +133,16 @@
   <!-- ============================== -->
   <!-- Scripts -->
   <!-- ============================== -->
-  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
-  <script src="/owl-school/public/assets/api/auth/logout.js" defer></script>
+  <script defer src="/owl-school/public/api/auth/authme.js"></script>
+  <script src="/owl-school/public/api/auth/logout.js" defer></script>
 
-  <script src="/owl-school/public/assets/api/agenda/read.js"></script>
+  <script src="/owl-school/public/api/agenda/read.js"></script>
 
-  <script> protectPage(["aluno"]); </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      protectPage(["aluno"]);
+    });
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -146,4 +150,8 @@
 
 </body>
 </html>
+
+
+
+
 

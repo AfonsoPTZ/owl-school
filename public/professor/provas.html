@@ -180,20 +180,22 @@
   <!-- ============================== -->
   <!-- Scripts -->
   <!-- ============================== -->
-  <script src="/owl-school/public/assets/api/auth/authme.js"></script>
-  <script src="/owl-school/public/assets/api/auth/logout.js" defer></script>
+  <script defer src="/owl-school/public/api/auth/authme.js"></script>
+  <script src="/owl-school/public/api/auth/logout.js" defer></script>
 
-  <script src="/owl-school/public/assets/api/prova/read.js"></script>
-  <script src="/owl-school/public/assets/api/prova/create.js"></script>
-  <script src="/owl-school/public/assets/api/prova/update.js"></script>
-  <script src="/owl-school/public/assets/api/prova/delete.js"></script>
+  <script src="/owl-school/public/api/prova/read.js"></script>
+  <script src="/owl-school/public/api/prova/create.js"></script>
+  <script src="/owl-school/public/api/prova/update.js"></script>
+  <script src="/owl-school/public/api/prova/delete.js"></script>
 
-  <script src="/owl-school/public/assets/api/prova_nota/read.js"></script>
-  <script src="/owl-school/public/assets/api/prova_nota/create.js"></script>
-  <script src="/owl-school/public/assets/api/prova_nota/update.js"></script>
-  <script src="/owl-school/public/assets/api/prova_nota/delete.js"></script>
+  <script src="/owl-school/public/api/prova_nota/read.js"></script>
+  <script src="/owl-school/public/api/prova_nota/create.js"></script>
+  <script src="/owl-school/public/api/prova_nota/update.js"></script>
+  <script src="/owl-school/public/api/prova_nota/delete.js"></script>
 
-  <script> protectPage(["professor"]); </script>
+  <script>
+document.addEventListener("DOMContentLoaded", function() { protectPage(["professor"]); });
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -201,4 +203,9 @@
 
 </body>
 </html>
+
+
+
+
+
 
