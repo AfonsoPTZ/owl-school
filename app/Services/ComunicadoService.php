@@ -32,14 +32,14 @@ class ComunicadoService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating notice.',
+                'message' => 'Erro ao criar comunicado.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Notice created successfully.',
+            'message' => 'Comunicado criado com sucesso.',
             'status'  => 201
         ];
     }
@@ -65,7 +65,7 @@ class ComunicadoService
 
         return [
             'success' => true,
-            'message' => 'Notice updated successfully.',
+            'message' => 'Comunicado atualizado com sucesso.',
             'status'  => 200
         ];
     }
@@ -90,7 +90,7 @@ class ComunicadoService
 
         return [
             'success' => true,
-            'message' => 'Notice deleted successfully.',
+            'message' => 'Comunicado deletado com sucesso.',
             'status'  => 200
         ];
     }

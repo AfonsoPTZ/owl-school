@@ -32,14 +32,14 @@ class ChamadaItemService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating attendance item.',
+                'message' => 'Erro ao registrar chamada do aluno.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Attendance item created successfully.',
+            'message' => 'Chamada do aluno registrada com sucesso.',
             'status'  => 201
         ];
     }
@@ -74,7 +74,7 @@ class ChamadaItemService
 
         return [
             'success' => true,
-            'message' => 'Attendance item updated successfully.',
+            'message' => 'Chamada do aluno atualizada com sucesso.',
             'status'  => 200
         ];
     }
@@ -99,7 +99,7 @@ class ChamadaItemService
 
         return [
             'success' => true,
-            'message' => 'Attendance item deleted successfully.',
+            'message' => 'Chamada do aluno deletada com sucesso.',
             'status'  => 200
         ];
     }

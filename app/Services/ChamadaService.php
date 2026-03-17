@@ -32,14 +32,14 @@ class ChamadaService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating attendance.',
+                'message' => 'Erro ao criar chamada.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Attendance created successfully.',
+            'message' => 'Chamada criada com sucesso.',
             'status'  => 201
         ];
     }
@@ -65,7 +65,7 @@ class ChamadaService
 
         return [
             'success' => true,
-            'message' => 'Attendance updated successfully.',
+            'message' => 'Chamada atualizada com sucesso.',
             'status'  => 200
         ];
     }
@@ -90,7 +90,7 @@ class ChamadaService
 
         return [
             'success' => true,
-            'message' => 'Attendance deleted successfully.',
+            'message' => 'Chamada deletada com sucesso.',
             'status'  => 200
         ];
     }

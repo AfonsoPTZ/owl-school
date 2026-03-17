@@ -37,14 +37,14 @@ class TarefaService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating task.',
+                'message' => 'Erro ao criar tarefa.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Task created successfully.',
+            'message' => 'Tarefa criada com sucesso.',
             'status'  => 201
         ];
     }
@@ -76,7 +76,7 @@ class TarefaService
 
         return [
             'success' => true,
-            'message' => 'Task updated successfully.',
+            'message' => 'Tarefa atualizada com sucesso.',
             'status'  => 200
         ];
     }
@@ -101,7 +101,7 @@ class TarefaService
 
         return [
             'success' => true,
-            'message' => 'Task deleted successfully.',
+            'message' => 'Tarefa deletada com sucesso.',
             'status'  => 200
         ];
     }

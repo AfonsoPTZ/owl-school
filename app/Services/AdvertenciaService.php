@@ -32,14 +32,14 @@ class AdvertenciaService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating warning.',
+                'message' => 'Erro ao criar advertência.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Warning created successfully.',
+            'message' => 'Advertência criada com sucesso.',
             'status'  => 201
         ];
     }
@@ -65,7 +65,7 @@ class AdvertenciaService
 
         return [
             'success' => true,
-            'message' => 'Warning updated successfully.',
+            'message' => 'Advertência atualizada com sucesso.',
             'status'  => 200
         ];
     }
@@ -90,7 +90,7 @@ class AdvertenciaService
 
         return [
             'success' => true,
-            'message' => 'Warning deleted successfully.',
+            'message' => 'Advertência deletada com sucesso.',
             'status'  => 200
         ];
     }

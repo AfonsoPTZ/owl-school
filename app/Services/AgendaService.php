@@ -32,14 +32,14 @@ class AgendaService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating schedule.',
+                'message' => 'Erro ao criar agenda.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Schedule created successfully.',
+            'message' => 'Agenda criada com sucesso.',
             'status'  => 201
         ];
     }
@@ -65,7 +65,7 @@ class AgendaService
 
         return [
             'success' => true,
-            'message' => 'Schedule updated successfully.',
+            'message' => 'Agenda atualizada com sucesso.',
             'status'  => 200
         ];
     }
@@ -90,7 +90,7 @@ class AgendaService
 
         return [
             'success' => true,
-            'message' => 'Schedule deleted successfully.',
+            'message' => 'Agenda deletada com sucesso.',
             'status'  => 200
         ];
     }

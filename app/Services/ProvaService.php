@@ -32,14 +32,14 @@ class ProvaService
         if (!$criou) {
             return [
                 'success' => false,
-                'message' => 'Error creating test.',
+                'message' => 'Erro ao criar prova.',
                 'status'  => 500
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Test created successfully.',
+            'message' => 'Prova criada com sucesso.',
             'status'  => 201
         ];
     }
@@ -65,7 +65,7 @@ class ProvaService
 
         return [
             'success' => true,
-            'message' => 'Test updated successfully.',
+            'message' => 'Prova atualizada com sucesso.',
             'status'  => 200
         ];
     }
@@ -90,7 +90,7 @@ class ProvaService
 
         return [
             'success' => true,
-            'message' => 'Test deleted successfully.',
+            'message' => 'Prova deletada com sucesso.',
             'status'  => 200
         ];
     }
