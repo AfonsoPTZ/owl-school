@@ -2,8 +2,18 @@
 
 namespace App\Http\Middleware;
 
+/**
+ * AuthMiddleware - Controle de autenticação e autorização
+ * 
+ * Nota: Session é inicializada em config/session.php (chamado por index.php)
+ * Essa middleware apenas garante que está ativa e verifica permissões
+ */
 class AuthMiddleware
 {
+    /**
+     * Garante que sessão está ativa (idempotente)
+     * Session já foi inicializada com cookies seguros em config/session.php
+     */
     public static function startSession(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {

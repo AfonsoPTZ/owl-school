@@ -17,8 +17,12 @@ namespace App\Services\AI;
 class ContextManager
 {
     /**
-     * Inicia sessão PHP se ainda não estiver ativa
-     * Necessário para armazenar contexto entre requisições
+     * Garante que sessão está ativa (idempotente)
+     * 
+     * Session é inicializada globalmente em config/session.php (via index.php)
+     * com parâmetros de cookie seguros (httponly, samesite, etc)
+     * 
+     * Esse método apenas força-a estar ativa se não estiver
      */
     public function startSessionIfNeeded(): void
     {

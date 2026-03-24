@@ -4,6 +4,8 @@ Plataforma escolar profissional com arquitetura em camadas, desenvolvida para fa
 
 Projeto acadêmico com padrões corporativos: **PHP 8 + MySQL + Bootstrap 5** com **Controller → Service → Repository** pattern.
 
+🤖 **Agora com IA:** Assistente inteligente usando Google Gemini com fallback por keywords
+
 ---
 
 ## ✨ Destaques Arquiteturais
@@ -37,6 +39,17 @@ Projeto acadêmico com padrões corporativos: **PHP 8 + MySQL + Bootstrap 5** co
 **9 Módulos CRUD Completos**
 - AUTH, TAREFA, CHAMADA, CHAMADA_ITEM, COMUNICADO, ADVERTENCIA, AGENDA, PROVA, PROVA_NOTA
 
+**Assistente de IA Inteligente**
+- Pipeline Gemini com fallback por keywords
+- Detecção automática de intenção (consultar tarefas, provas, notas, agenda, etc)
+- Contexto de conversa para follow-ups
+- Respostas personalizadas por papel do usuário
+
+**API Router Centralizado**
+- `.htaccess` para rewrite de URLs
+- `index.php` como router único
+- URL amigável: `/api/tarefas` ao invés de `/src/api/tarefas.php`
+
 ---
 
 ## 📚 Funcionalidades
@@ -47,10 +60,12 @@ Projeto acadêmico com padrões corporativos: **PHP 8 + MySQL + Bootstrap 5** co
 - Cadastro e vínculo de alunos e responsáveis
 - Comunicação entre escola e responsáveis (avisos, mensagens)
 - Gestão de disciplinas, turmas e professores
-- Controle de presença (chamadas)
-- Painel administrativo para gerenciamento
-
----
+- Controle de presença PDO + MySQL 5.7+ |
+| **Autenticação** | Session + Cookie |
+| **Padrão Arquitetural** | Repository + Service + DTO |
+| **Configuração** | .env para variáveis sensíveis |
+| **IA** | Google Gemini com fallback por keywords |
+| **Roteamento** | .htaccess + index.php (router único)
 
 ## 🛠️ Stack Tecnológico
 

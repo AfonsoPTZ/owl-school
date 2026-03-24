@@ -157,3 +157,178 @@ class TarefaValidator {
 | 404 | Não encontrado |
 | 422 | Erro de validação |
 | 500 | Erro do servidor |
+
+---
+
+## 🤖 Pipeline de IA (Gemini + Fallback)
+
+### Arquitetura
+
+```
+Pergunta do usuário
+     ↓
+IntentDetector (Gemini → keywords fallback)
+     ↓
+AIService orquestra:
+  ├── Busca dados (Repository)
+  ├── Detecta follow-up (ContextManager)
+  └── Gera resposta (PromptBuilder → Gemini)
+     ↓
+AnswerFormatter (fallback se Gemini falhar)
+     ↓
+Resposta personalizada (por papel: aluno/responsável/professor)
+```
+
+### Componentes
+
+**1. IntentDetector** - Classifica intenção da pergunta
+```php
+// Tenta Gemini, fallback por keywords
+$intentResult = $intentDetector->detect("Quais são minhas tarefas?");
+// {intent: 'consultar_tarefas', materia: null, periodo: null}
+```
+
+**2. AIService** - Orquestra toda a pipeline
+```php
+// Chat com contexto e follow-ups
+$resultado = $aiService->chat(new AIDTO(['pergunta' => 'Quais são?']));
+// Reutiliza dados anteriores se for follow-up
+```
+
+**3. AnswerFormatter** - Formata em texto legível
+```php
+// Sem Gemini, retorna fallback formatado
+$resposta = $formatter->fallback($intentData, $dados, $userContext);
+// "Você tem 3 tarefas: Matemática, Português, ..."
+```
+
+**4. PromptBuilder** - Constrói prompts otimizados
+```php
+// Adapta system instruction por papel
+$payload = $promptBuilder->buildAnswerPayload(
+  pergunta: "Minhas tarefas?",
+  intentData: $intentResult,
+  dados: $dados,
+  userContext: $userContext  // role: 'aluno'/'responsavel'
+);
+```
+
+**5. ContextManager** - Gerencia contexto de conversa
+```php
+// Salva estado para follow-ups
+$contextManager->saveConversationContext(
+  intent: 'consultar_tarefas',
+  data: $tarefas,
+  response: 'Você tem 3 tarefas...'
+);
+
+// Próxima pergunta reutiliza dados
+$lastIntent = $contextManager->getConversationContext()['last_intent'];
+```
+
+### Intenções Suportadas
+
+```
+consultar_tarefas    → Busca tarefas
+consultar_provas     → Busca provas agendadas
+consultar_notas      → Busca notas (filtro por papel)
+consultar_advertencias → Busca advertências
+consultar_agenda     → Busca horários de aulas
+consultar_chamada    → Busca frequência/presença
+consultar_comunicados → Busca avisos gerais
+```
+
+### Exemplo: Aluno Pergunta "Qual é a próxima aula?"
+
+```
+1. IntentDetector detecta: "consultar_agenda"
+
+2. AIService busca:
+   - getAgenda() → lista de aulas do week
+
+3. PromptBuilder constrói:
+   - systemInstruction: "Você é assistente escolar"
+   - contextData: pergunta + dados + role=aluno
+   - temperatura: 0.2 (consistência)
+
+4. Gemini responde adaptado:
+   "Sua próxima aula é Matemática às 10:00 na segunda-feira"
+
+5. ContextManager salva:
+   last_intent = 'consultar_agenda'
+   last_data = [...aulas...]
+   last_response = "Sua próxima aula é..."
+
+6. Follow-up "E depois?" reutiliza dados cached
+```
+
+---
+
+## 🚀 Roteamento via index.php
+
+### Como Funciona
+
+**.htaccess** reescreve todas as requisições para `index.php`:
+
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+```
+
+**index.php** roteia para Controller/Action:
+
+```php
+// Extrai path e method
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'];
+
+// /api/tarafas/create → TarefaController::create()
+// /api/provas/list → ProvaController::index()
+// /api/ia/chat → AIController::index()
+
+// Busca o controller certo e executa
+$controller->$action();
+```
+
+### Formato de Rota
+
+```
+/api/{recurso}/{acao}
+
+/api/tarefas/create    →  TarefaController::create()  (POST)
+/api/tarefas/list      →  TarefaController::index()   (GET)
+/api/tarefas/update    →  TarefaController::update()  (PUT)
+/api/tarefas/delete    →  TarefaController::delete()  (DELETE)
+
+/api/ia/chat           →  AIController::index()       (POST)
+/api/auth/login        →  AuthController::login()     (POST)
+```
+
+### Vantagens
+
+✅ URLs amigáveis (sem .php)
+✅ Roteamento centralizado
+✅ Fácil adicionar middlewares
+✅ Sem múltiplos arquivos na raiz
+✅ Permite restrições por role/resource
+
+---
+
+## 📊 PDO Integration
+
+Todas as queries usam **Prepared Statements** com **PDO**:
+
+```php
+$sql = "SELECT * FROM tarefa WHERE user_id = ?";
+$stmt = $this->conn->prepare($sql);
+$stmt->execute([$userId]);
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+```
+
+**Benefícios:**
+- Proteção contra SQL Injection
+- Parâmetros tipificados
+- Melhor performance (planos de execução cachados)
+- Suporte a múltiplos bancos de dados

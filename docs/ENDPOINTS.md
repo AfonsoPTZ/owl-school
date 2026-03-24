@@ -2,6 +2,10 @@
 
 Documentação do contrato (request/response) de todos os endpoints da API.
 
+**Nota:** Com o novo router (`index.php`), todas as requisições são roteadas via URLs amigáveis:
+- `/api/{recurso}/{acao}` → Controller::acao()
+- `.htaccess` reescreve para `index.php`
+
 ---
 
 ## Padrão de Response
@@ -27,9 +31,64 @@ Todas as respostas seguem este formato:
 
 ---
 
+## 🤖 IA - Assistente Inteligente
+
+### POST /api/ia/chat
+
+Pergunta ao assistente com detecção inteligente de intenção.
+
+**Request:**
+```json
+{
+  "pergunta": "Quais são minhas tarefas?"
+}
+```
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "message": "Você tem 3 tarefas: Matemática (03/04), Português (05/04), História (07/04)",
+  "intent": "consultar_tarefas",
+  "status": 200
+}
+```
+
+**Intenções suportadas:**
+- `consultar_tarefas` - Busca tarefas
+- `consultar_provas` - Busca provas agendadas
+- `consultar_notas` - Busca notas/desempenho
+- `consultar_advertencias` - Busca advertências
+- `consultar_agenda` - Busca agenda/horários
+- `consultar_chamada` - Busca frequência/presença
+- `consultar_comunicados` - Busca comunicados
+- `desconhecido` - Pergunta fora do escopo
+
+**Response 400 (validação):**
+```json
+{
+  "success": false,
+  "message": "Pergunta obrigatória.",
+  "status": 400
+}
+```
+
+**Response com fallback (sem Gemini):**
+```json
+{
+  "success": true,
+  "message": "Você tem 3 tarefas:\n- Matemática\n- Português\n- História",
+  "intent": "consultar_tarefas",
+  "status": 200,
+  "fallback": true
+}
+```
+
+---
+
 ## 🔐 Autenticação
 
-### POST /owl-school/src/api/auth/login.php
+### POST /api/auth/login
 
 **Request:**
 ```json
@@ -66,7 +125,7 @@ Todas as respostas seguem este formato:
 
 ---
 
-### POST /owl-school/src/api/auth/logout.php
+### GET /api/auth/logout
 
 **Response 200:**
 ```json
