@@ -1,5 +1,8 @@
 async function carregarNotasFilhos() {
-  const response = await fetch("/owl-school/app/Routes/utils_responsavel.php?action=getNotasFilho", { method: "POST"});
+  const response = await fetch("/owl-school/api/utils_responsavel?action=getNotasFilho", { 
+    method: "GET",
+    credentials: "include"
+  });
   const resultado = await response.json();
   const corpoTabela = document.getElementById("tbodyNotas");
     corpoTabela.innerHTML = "";

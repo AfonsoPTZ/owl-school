@@ -6,9 +6,9 @@ use App\Models\Tarefa;
 
 class TarefaRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,26 +19,19 @@ class TarefaRepository
             "INSERT INTO tarefa (titulo, descricao, data_entrega) VALUES (?, ?, ?)"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param(
-            "sss",
+        if (!$stmt->execute([
             $tarefa->titulo,
             $tarefa->descricao,
             $tarefa->dataEntrega
-        );
+        ])) {
+            return false;
+        }
 
-        $executou = $stmt->execute();
-
-        if ($executou && $stmt->affected_rows > 0) {
-            $tarefa->id = $this->conn->insert_id;
-            $stmt->close();
+        if ($stmt->rowCount() > 0) {
+            $tarefa->id = $this->conn->lastInsertId();
             return true;
         }
 
-        $stmt->close();
         return false;
     }
 
@@ -52,19 +45,9 @@ class TarefaRepository
             return false;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->execute([$id]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findAll(): array
@@ -77,21 +60,16 @@ class TarefaRepository
             return [];
         }
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
+        if (!$stmt->execute()) {
             return [];
         }
 
-        $resultado = $stmt->get_result();
         $tarefas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $tarefas[] = $linha;
         }
 
-        $stmt->close();
         return $tarefas;
     }
 
@@ -105,24 +83,13 @@ class TarefaRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "sssi",
+        $stmt->execute([
             $tarefa->titulo,
             $tarefa->descricao,
             $tarefa->dataEntrega,
             $tarefa->id
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

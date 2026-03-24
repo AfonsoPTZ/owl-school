@@ -42,4 +42,28 @@ class AuthController extends BaseController
             $this->handleException($e, 'logout');
         }
     }
+
+    public function authme(): void
+    {
+        try {
+            if (empty($_SESSION['user_id'])) {
+                http_response_code(401);
+                $this->json([
+                    'success' => false,
+                    'message' => 'Usuário não autenticado.'
+                ], 401);
+                return;
+            }
+
+            $this->json([
+                'success' => true,
+                'user' => [
+                    'id' => $_SESSION['user_id'],
+                    'tipo_usuario' => $_SESSION['tipo_usuario']
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            $this->handleException($e, 'authme');
+        }
+    }
 }

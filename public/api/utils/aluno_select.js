@@ -1,5 +1,8 @@
 async function carregarListaAlunos() {
-  const resposta = await fetch("/owl-school/app/Routes/utils.php?action=getAlunoSelect", { method: "POST" });
+  const resposta = await fetch("/owl-school/api/utils?action=getAlunoSelect", { 
+    method: "GET",
+    credentials: "include"
+  });
   const dados = await resposta.json();
   if (dados.success) {
   const select = document.getElementById("aluno_id");

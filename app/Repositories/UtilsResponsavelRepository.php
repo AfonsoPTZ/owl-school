@@ -4,16 +4,39 @@ namespace App\Repositories;
 
 class UtilsResponsavelRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
 
     /* ============================== */
-    /* GET ADVERTENCIAS FILHO */
+    /* GET ALUNO VINCULADO */
     /* ============================== */
+    public function getAlunoVinculado(int $responsavelId): ?array
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT
+                usuario.id,
+                usuario.nome
+            FROM aluno_responsavel
+            JOIN usuario
+                ON usuario.id = aluno_responsavel.aluno_id
+            WHERE aluno_responsavel.responsavel_id = ?
+            LIMIT 1"
+        );
+
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->execute([$responsavelId]);
+        $aluno = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $aluno ?: null;
+    }
+
     public function getAdvertenciasFilho(int $responsavelId): array
     {
         $stmt = $this->conn->prepare(
@@ -33,16 +56,13 @@ class UtilsResponsavelRepository
             ORDER BY advertencia.id DESC"
         );
 
-        $stmt->bind_param("i", $responsavelId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$responsavelId]);
         $advertencias = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $advertencias[] = $linha;
         }
 
-        $stmt->close();
         return $advertencias;
     }
 
@@ -67,16 +87,13 @@ class UtilsResponsavelRepository
             ORDER BY chamada.data DESC"
         );
 
-        $stmt->bind_param("i", $responsavelId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$responsavelId]);
         $frequencias = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $frequencias[] = $linha;
         }
 
-        $stmt->close();
         return $frequencias;
     }
 
@@ -103,16 +120,13 @@ class UtilsResponsavelRepository
             ORDER BY prova.data DESC"
         );
 
-        $stmt->bind_param("i", $responsavelId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$responsavelId]);
         $notas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $notas[] = $linha;
         }
 
-        $stmt->close();
         return $notas;
     }
 
@@ -132,16 +146,13 @@ class UtilsResponsavelRepository
             LIMIT 1"
         );
 
-        $stmt->bind_param("i", $responsavelId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$responsavelId]);
         $nomeFilho = null;
 
-        if ($linha = $resultado->fetch_assoc()) {
+        if ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $nomeFilho = $linha['nome_filho'];
         }
 
-        $stmt->close();
         return $nomeFilho;
     }
 }

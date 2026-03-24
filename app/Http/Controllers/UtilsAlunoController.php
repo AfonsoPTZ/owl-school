@@ -14,11 +14,40 @@ class UtilsAlunoController
     }
 
     /* ============================== */
+    /* INDEX - Entry point para actions */
+    /* ============================== */
+    public function index()
+    {
+        $action = $_POST['action'] ?? $_GET['action'] ?? null;
+
+        if (!$action) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Ação não especificada.'
+            ]);
+            return;
+        }
+
+        // Converter action para nome de método (ex: getNomeResponsavel -> getNomeResponsavel)
+        $methodName = $action;
+
+        if (!method_exists($this, $methodName)) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Ação '{$action}' não encontrada."
+            ]);
+            return;
+        }
+
+        $this->$methodName();
+    }
+
+    /* ============================== */
     /* GET ADVERTENCIAS */
     /* ============================== */
     public function getAdvertencias()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'])) {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -49,7 +78,7 @@ class UtilsAlunoController
     /* ============================== */
     public function getFrequencias()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'])) {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -80,7 +109,7 @@ class UtilsAlunoController
     /* ============================== */
     public function getNotas()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'])) {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'
@@ -111,7 +140,7 @@ class UtilsAlunoController
     /* ============================== */
     public function getNomeResponsavel()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'])) {
             echo json_encode([
                 'success' => false,
                 'message' => 'Método inválido.'

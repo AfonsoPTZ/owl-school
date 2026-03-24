@@ -1,5 +1,8 @@
 async function carregarNomeFilho() {
-  const response = await fetch("/owl-school/app/Routes/utils_responsavel.php?action=getNomeFilho", { method: "POST"});
+  const response = await fetch("/owl-school/api/utils_responsavel?action=getNomeFilho", { 
+    method: "GET",
+    credentials: "include"
+  });
   const resultado = await response.json();
   const container = document.getElementById("nomeFilho");
     container.innerHTML = "";

@@ -1,5 +1,8 @@
 async function carregarFrequenciasFilhos() {
-  const response = await fetch("/owl-school/app/Routes/utils_responsavel.php?action=getFrequenciasFilho", { method: "POST" });
+  const response = await fetch("/owl-school/api/utils_responsavel?action=getFrequenciasFilho", { 
+    method: "GET",
+    credentials: "include"
+  });
   const resultado = await response.json();
   const corpoTabela = document.getElementById("tbodyFrequencias");
     corpoTabela.innerHTML = "";

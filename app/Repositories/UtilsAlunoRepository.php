@@ -4,9 +4,9 @@ namespace App\Repositories;
 
 class UtilsAlunoRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -33,16 +33,13 @@ class UtilsAlunoRepository
             ORDER BY advertencia.id DESC"
         );
 
-        $stmt->bind_param("i", $alunoId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$alunoId]);
         $advertencias = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $advertencias[] = $linha;
         }
 
-        $stmt->close();
         return $advertencias;
     }
 
@@ -62,16 +59,13 @@ class UtilsAlunoRepository
             ORDER BY chamada.data DESC"
         );
 
-        $stmt->bind_param("i", $alunoId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$alunoId]);
         $frequencias = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $frequencias[] = $linha;
         }
 
-        $stmt->close();
         return $frequencias;
     }
 
@@ -93,16 +87,13 @@ class UtilsAlunoRepository
             ORDER BY prova.data DESC"
         );
 
-        $stmt->bind_param("i", $alunoId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$alunoId]);
         $notas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $notas[] = $linha;
         }
 
-        $stmt->close();
         return $notas;
     }
 
@@ -122,16 +113,13 @@ class UtilsAlunoRepository
             LIMIT 1"
         );
 
-        $stmt->bind_param("i", $alunoId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $stmt->execute([$alunoId]);
         $nomeResponsavel = null;
 
-        if ($linha = $resultado->fetch_assoc()) {
+        if ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $nomeResponsavel = $linha['nome_responsavel'];
         }
 
-        $stmt->close();
         return $nomeResponsavel;
     }
 }

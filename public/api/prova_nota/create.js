@@ -22,7 +22,7 @@ let idAlunoAtual = null;
   formularioDados.append("provaId", idProvaAtual);
   formularioDados.append("alunoId", idAlunoAtual);
   formularioDados.append("nota", nota);
-  const resposta = await fetch("/owl-school/app/Routes/prova_nota.php", {
+  const resposta = await fetch("/owl-school/api/prova_nota", {
     method: "POST",
     body: formularioDados
 

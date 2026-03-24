@@ -4,9 +4,9 @@ namespace App\Repositories;
 
 class UtilsRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -35,14 +35,12 @@ class UtilsRepository
         );
 
         $stmt->execute();
-        $resultado = $stmt->get_result();
         $alunos = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $alunos[] = $linha;
         }
 
-        $stmt->close();
         return $alunos;
     }
 }

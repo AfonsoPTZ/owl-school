@@ -37,6 +37,26 @@
         </div>
       </div>
 
+
+            <div class="card p-3">
+  <h5>Assistente OWL School</h5>
+
+  <div class="mb-3">
+    <input
+      type="text"
+      id="inputIA"
+      class="form-control"
+      placeholder="Digite sua pergunta"
+    >
+  </div>
+
+  <button class="btn btn-primary" onclick="enviarPerguntaIA()">
+    Enviar
+  </button>
+
+  <pre id="respostaIA" class="mt-3 mb-0"></pre>
+</div>
+
     </main>
   </div>
 
@@ -45,6 +65,7 @@
   <!-- ============================== -->
   <script defer src="/owl-school/public/api/auth/authme.js"></script>
   <script defer src="/owl-school/public/api/auth/logout.js"></script>
+  <script defer src="/owl-school/public/api/AI.js"></script>
 
   <script src="/owl-school/public/api/utils/get_name.js"></script>
   <script src="/owl-school/public/api/utils/responsavel/nome_filho.js"></script>

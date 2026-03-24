@@ -4,9 +4,9 @@ namespace App\Repositories;
 
 class AuthRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -20,13 +20,10 @@ class AuthRepository
             "SELECT id, nome, tipo_usuario FROM usuario WHERE email = ? AND senha = ?"
         );
 
-        $stmt->bind_param("ss", $email, $senha);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-        $usuario = $resultado->fetch_assoc();
+        $stmt->execute([$email, $senha]);
+        $usuario = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        $stmt->close();
-        return $usuario;
+        return $usuario ?: null;
     }
 
     /* ============================== */
@@ -40,12 +37,9 @@ class AuthRepository
 
         if (!$stmt) return null;
 
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-        $usuario = $resultado->fetch_assoc();
+        $stmt->execute([$email]);
+        $usuario = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        $stmt->close();
-        return $usuario;
+        return $usuario ?: null;
     }
 }

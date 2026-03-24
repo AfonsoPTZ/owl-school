@@ -6,9 +6,9 @@ use App\Models\Agenda;
 
 class AgendaRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,27 +19,20 @@ class AgendaRepository
             "INSERT INTO horarios_aula (dia_semana, inicio, fim, disciplina) VALUES (?, ?, ?, ?)"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param(
-            "ssss",
+        if (!$stmt->execute([
             $agenda->diaSemana,
             $agenda->inicio,
             $agenda->fim,
             $agenda->disciplina
-        );
+        ])) {
+            return false;
+        }
 
-        $executou = $stmt->execute();
-
-        if ($executou && $stmt->affected_rows > 0) {
-            $agenda->id = $this->conn->insert_id;
-            $stmt->close();
+        if ($stmt->rowCount() > 0) {
+            $agenda->id = $this->conn->lastInsertId();
             return true;
         }
 
-        $stmt->close();
         return false;
     }
 
@@ -53,19 +46,9 @@ class AgendaRepository
             return false;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->execute([$id]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findAll(): array
@@ -85,21 +68,16 @@ class AgendaRepository
             return [];
         }
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
+        if (!$stmt->execute()) {
             return [];
         }
 
-        $resultado = $stmt->get_result();
         $agendas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $agendas[] = $linha;
         }
 
-        $stmt->close();
         return $agendas;
     }
 
@@ -113,25 +91,14 @@ class AgendaRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "ssssi",
+        $stmt->execute([
             $agenda->diaSemana,
             $agenda->inicio,
             $agenda->fim,
             $agenda->disciplina,
             $agenda->id
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

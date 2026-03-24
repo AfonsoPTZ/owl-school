@@ -12,7 +12,7 @@ async function criarHorario() {
   formularioDados.append("inicio", inicio);
   formularioDados.append("fim", fim);
   formularioDados.append("disciplina", disciplina);
-  const resposta = await fetch("/owl-school/app/Routes/agenda.php", {
+  const resposta = await fetch("/owl-school/api/agenda", {
     method: "POST",
     body: formularioDados
 

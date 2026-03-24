@@ -20,7 +20,7 @@ let idAlunoAtualChamada = null;
   formularioDados.append("chamadaId", idChamadaAtual);
   formularioDados.append("alunoId", idAlunoAtualChamada);
   formularioDados.append("status", status);
-  const resposta = await fetch("/owl-school/app/Routes/chamada_item.php", {
+  const resposta = await fetch("/owl-school/api/chamada_item", {
     method: "POST",
     body: formularioDados
 

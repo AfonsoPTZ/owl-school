@@ -5,7 +5,7 @@ let idDaTarefaAtual = null;
   const elementoModal = document.getElementById("editModal");
   const modal = new bootstrap.Modal(elementoModal);
   modal.show();
-  const resposta = await fetch("/owl-school/app/Routes/tarefa.php", { method: "GET" });
+  const resposta = await fetch("/owl-school/api/tarefa", { method: "GET" });
   const dados = await resposta.json();
   const tarefa = dados.tarefas.find(tarefa => String(tarefa.id) === String(idTarefa));
 
@@ -18,7 +18,7 @@ let idDaTarefaAtual = null;
   const titulo = document.getElementById("edit_titulo").value;
   const descricao = document.getElementById("edit_descricao").value;
   const dataEntrega = document.getElementById("edit_data").value;
-  const resposta = await fetch("/owl-school/app/Routes/tarefa.php", {
+  const resposta = await fetch("/owl-school/api/tarefa", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

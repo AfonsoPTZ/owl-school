@@ -1,5 +1,5 @@
 async function fazerLogout() {
-  const resposta = await fetch("/owl-school/app/Routes/logout.php", {
+  const resposta = await fetch("/owl-school/api/logout", {
     method: "POST",
     credentials: 'include'
   });

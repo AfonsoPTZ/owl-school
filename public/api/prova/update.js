@@ -5,7 +5,7 @@ let idDaProvaAtual = null;
   const elementoModal = document.getElementById("editModalProva");
   const modal = new bootstrap.Modal(elementoModal);
   modal.show();
-  const resposta = await fetch("/owl-school/app/Routes/prova.php", { method: "GET" });
+  const resposta = await fetch("/owl-school/api/prova", { method: "GET" });
   const dados = await resposta.json();
   const prova = dados.provas.find(prova => String(prova.id) === String(idProva));
 
@@ -15,7 +15,7 @@ let idDaProvaAtual = null;
   async function salvarProva() {
   const titulo = document.getElementById("edit_titulo_prova").value;
   const data   = document.getElementById("edit_data_prova").value;
-  const resposta = await fetch("/owl-school/app/Routes/prova.php", {
+  const resposta = await fetch("/owl-school/api/prova", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

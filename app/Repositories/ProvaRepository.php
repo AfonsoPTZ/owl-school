@@ -6,9 +6,9 @@ use App\Models\Prova;
 
 class ProvaRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,25 +19,18 @@ class ProvaRepository
             "INSERT INTO prova (titulo, data) VALUES (?, ?)"
         );
 
-        if (!$stmt) {
+        if (!$stmt->execute([
+            $prova->titulo,
+            $prova->data
+        ])) {
             return false;
         }
 
-        $stmt->bind_param(
-            "ss",
-            $prova->titulo,
-            $prova->data
-        );
-
-        $executou = $stmt->execute();
-
-        if ($executou && $stmt->affected_rows > 0) {
-            $prova->id = $this->conn->insert_id;
-            $stmt->close();
+        if ($stmt->rowCount() > 0) {
+            $prova->id = $this->conn->lastInsertId();
             return true;
         }
 
-        $stmt->close();
         return false;
     }
 
@@ -51,19 +44,9 @@ class ProvaRepository
             return false;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->execute([$id]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findAll(): array
@@ -76,21 +59,16 @@ class ProvaRepository
             return [];
         }
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
+        if (!$stmt->execute()) {
             return [];
         }
 
-        $resultado = $stmt->get_result();
         $provas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $provas[] = $linha;
         }
 
-        $stmt->close();
         return $provas;
     }
 
@@ -104,23 +82,12 @@ class ProvaRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "ssi",
+        $stmt->execute([
             $prova->titulo,
             $prova->data,
             $prova->id
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

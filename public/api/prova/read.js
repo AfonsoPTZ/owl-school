@@ -1,7 +1,7 @@
 async function carregarProvas() {
   const user = await getSessionUser();
   const tipoUsuario = user.tipo_usuario;
-  const response = await fetch("/owl-school/app/Routes/prova.php", { method: "GET" });
+  const response = await fetch("/owl-school/api/prova", { method: "GET" });
   const resultado = await response.json();
   const corpoTabela = document.getElementById("tbodyProvas");
   corpoTabela.innerHTML = "";

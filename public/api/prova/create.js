@@ -8,7 +8,7 @@ async function criarProva() {
 
   formularioDados.append("titulo", titulo);
   formularioDados.append("data", data);
-  const resposta = await fetch("/owl-school/app/Routes/prova.php", {
+  const resposta = await fetch("/owl-school/api/prova", {
     method: "POST",
     body: formularioDados
 

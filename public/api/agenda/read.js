@@ -1,7 +1,7 @@
 async function carregarAgenda() {
   const user = await getSessionUser();
   const tipoUsuario = user.tipo_usuario;
-  const response = await fetch("/owl-school/app/Routes/agenda.php", { method: "GET" });
+  const response = await fetch("/owl-school/api/agenda", { method: "GET" });
   const resultado = await response.json();
   const dias = ["segunda", "terca", "quarta", "quinta", "sexta"];
   const dados = resultado.por_dia;

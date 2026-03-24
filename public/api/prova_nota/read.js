@@ -1,8 +1,14 @@
 async function listarNotasDaProva(provaId) {
-  const resposta = await fetch("/owl-school/app/Routes/prova_nota.php?prova_id=" + provaId, {
+  const resposta = await fetch("/owl-school/api/prova_nota?prova_id=" + provaId, {
       method: "GET"
     });
   const dados = await resposta.json();
+  
+  if (!dados.success) {
+    alert(dados.message || "Erro ao carregar notas");
+    return;
+  }
+
   const cardNotas = document.getElementById("cardNotas");
     cardNotas.classList.remove("d-none");
 
@@ -26,7 +32,7 @@ async function listarNotasDaProva(provaId) {
   const corpo = document.getElementById("tbodyNotas");
     corpo.innerHTML = "";
   const notas = dados.notas;
-  if (!notas.length) {
+  if (!notas || !notas.length) {
       corpo.innerHTML = `<tr><td colspan="3" class="text-muted">Nenhum aluno encontrado.</td></tr>`;
       return;
     }

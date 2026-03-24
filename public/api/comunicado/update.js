@@ -5,7 +5,7 @@ let idDoComunicadoAtual = null;
   const elementoModal = document.getElementById("editModalComunicado");
   const modal = new bootstrap.Modal(elementoModal);
   modal.show();
-  const resposta = await fetch("/owl-school/app/Routes/comunicado.php", { method: "GET" });
+  const resposta = await fetch("/owl-school/api/comunicado", { method: "GET" });
   const dados = await resposta.json();
   const comunicado = dados.comunicados.find(comunicado => String(comunicado.id) === String(idComunicado));
 
@@ -15,7 +15,7 @@ let idDoComunicadoAtual = null;
   async function salvarComunicado() {
   const titulo = document.getElementById("edit_titulo").value;
   const corpo  = document.getElementById("edit_corpo").value;
-  const resposta = await fetch("/owl-school/app/Routes/comunicado.php", {
+  const resposta = await fetch("/owl-school/api/comunicado", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

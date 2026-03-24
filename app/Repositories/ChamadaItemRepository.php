@@ -6,9 +6,9 @@ use App\Models\ChamadaItem;
 
 class ChamadaItemRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,21 +19,11 @@ class ChamadaItemRepository
             "INSERT INTO chamada_item (chamada_id, aluno_id, status) VALUES (?, ?, ?)"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param(
-            "iis",
+        return $stmt->execute([
             $chamadaItem->chamadaId,
             $chamadaItem->alunoId,
             $chamadaItem->status
-        );
-
-        $executou = $stmt->execute();
-
-        $stmt->close();
-        return $executou;
+        ]);
     }
 
     public function delete(int $chamadaId, int $alunoId): bool
@@ -46,19 +36,9 @@ class ChamadaItemRepository
             return false;
         }
 
-        $stmt->bind_param("ii", $chamadaId, $alunoId);
+        $stmt->execute([$chamadaId, $alunoId]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findByChamada(int $chamadaId): array
@@ -85,23 +65,14 @@ class ChamadaItemRepository
             return [];
         }
 
-        $stmt->bind_param("i", $chamadaId);
+        $stmt->execute([$chamadaId]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return [];
-        }
-
-        $resultado = $stmt->get_result();
         $items = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $items[] = $linha;
         }
 
-        $stmt->close();
         return $items;
     }
 
@@ -115,23 +86,12 @@ class ChamadaItemRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "sii",
+        $stmt->execute([
             $chamadaItem->status,
             $chamadaItem->chamadaId,
             $chamadaItem->alunoId
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

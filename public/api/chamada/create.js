@@ -6,7 +6,7 @@ async function criarChamada() {
   const formularioDados = new FormData();
 
   formularioDados.append("data", data);
-  const resposta = await fetch("/owl-school/app/Routes/chamada.php", {
+  const resposta = await fetch("/owl-school/api/chamada", {
     method: "POST",
     body: formularioDados
 

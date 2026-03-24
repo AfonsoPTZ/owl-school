@@ -5,7 +5,7 @@ let idAdvertenciaAtual = null;
   const elementoModal = document.getElementById("editModalAdvertencia");
   const modal = new bootstrap.Modal(elementoModal);
     modal.show();
-  const resposta = await fetch("/owl-school/app/Routes/advertencia.php", { method: "GET" });
+  const resposta = await fetch("/owl-school/api/advertencia", { method: "GET" });
   const dados = await resposta.json();
   const advertencia = dados.advertencias.find(advertencia => String(advertencia.id) === String(idAdvertencia));
 
@@ -16,7 +16,7 @@ let idAdvertenciaAtual = null;
   async function salvarAdvertencia() {
   const titulo = document.getElementById("edit_titulo").value;
   const descricao = document.getElementById("edit_descricao").value;
-  const resp = await fetch("/owl-school/app/Routes/advertencia.php", {
+  const resp = await fetch("/owl-school/api/advertencia", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

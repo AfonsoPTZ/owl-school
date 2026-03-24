@@ -1,7 +1,7 @@
 async function carregarChamadas() {
   const user = await getSessionUser();
   const tipoUsuario = user.tipo_usuario;
-  const response = await fetch("/owl-school/app/Routes/chamada.php", { method: "GET" });
+  const response = await fetch("/owl-school/api/chamada", { method: "GET" });
   const resultado = await response.json();
   const corpoTabela = document.getElementById("tbodyChamadas");
     corpoTabela.innerHTML = "";

@@ -1,6 +1,6 @@
 async function carregarComunicados() {
   const user = await getSessionUser();
-  const resposta = await fetch("/owl-school/app/Routes/comunicado.php", { method: "GET" });
+  const resposta = await fetch("/owl-school/api/comunicado", { method: "GET" });
   const resultado = await resposta.json();
   const tipoUsuario = user.tipo_usuario;
   const corpoTabela = document.getElementById("tbodyComunicados");

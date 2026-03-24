@@ -1,5 +1,5 @@
 async function getSessionUser() {
-  const response = await fetch("/owl-school/app/Routes/authme.php", {
+  const response = await fetch("/owl-school/api/authme", {
     method: "GET",
     credentials: "include"
   });

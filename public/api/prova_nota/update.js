@@ -14,7 +14,7 @@ let idAlunoAtualEditar = null;
   let nota = document.getElementById("edit_nota").value;
 
   nota = nota.replace(",", ".");
-  const resposta = await fetch("/owl-school/app/Routes/prova_nota.php", {
+  const resposta = await fetch("/owl-school/api/prova_nota", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

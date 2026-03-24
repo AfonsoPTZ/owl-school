@@ -6,9 +6,9 @@ use App\Models\ProvaNota;
 
 class ProvaNotaRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -24,17 +24,11 @@ class ProvaNotaRepository
 
         if (!$stmt) return false;
 
-        $stmt->bind_param(
-            "iid",
+        return $stmt->execute([
             $provaNota->provaId,
             $provaNota->alunoId,
             $provaNota->nota
-        );
-
-        $executou = $stmt->execute();
-
-        $stmt->close();
-        return $executou;
+        ]);
     }
 
     /* ============================== */
@@ -48,18 +42,9 @@ class ProvaNotaRepository
 
         if (!$stmt) return false;
 
-        $stmt->bind_param("ii", $provaId, $alunoId);
-        $executou = $stmt->execute();
+        $stmt->execute([$provaId, $alunoId]);
 
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     /* ============================== */
@@ -71,15 +56,12 @@ class ProvaNotaRepository
         $stmtProva = $this->conn->prepare("SELECT titulo FROM prova WHERE id = ?");
         if (!$stmtProva) return [];
 
-        $stmtProva->bind_param("i", $provaId);
-        $stmtProva->execute();
-        $resultProva = $stmtProva->get_result();
+        $stmtProva->execute([$provaId]);
         $titulo_prova = '';
         
-        if ($row = $resultProva->fetch_assoc()) {
+        if ($row = $stmtProva->fetch(\PDO::FETCH_ASSOC)) {
             $titulo_prova = $row['titulo'];
         }
-        $stmtProva->close();
 
         // Buscar todos os alunos com suas notas (LEFT JOIN para mostrar alunos sem nota também)
         $stmt = $this->conn->prepare(
@@ -98,18 +80,15 @@ class ProvaNotaRepository
 
         if (!$stmt) return [];
 
-        $stmt->bind_param("i", $provaId);
-        $stmt->execute();
+        $stmt->execute([$provaId]);
 
-        $resultado = $stmt->get_result();
         $notas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $linha['titulo_prova'] = $titulo_prova;
             $notas[] = $linha;
         }
 
-        $stmt->close();
         return $notas;
     }
 
@@ -124,14 +103,10 @@ class ProvaNotaRepository
 
         if (!$stmt) return false;
 
-        $nota = $provaNota->nota;
-        $provaId = $provaNota->provaId;
-        $alunoId = $provaNota->alunoId;
-
-        $stmt->bind_param("dii", $nota, $provaId, $alunoId);
-        $executou = $stmt->execute();
-
-        $stmt->close();
-        return $executou;
+        return $stmt->execute([
+            $provaNota->nota,
+            $provaNota->provaId,
+            $provaNota->alunoId
+        ]);
     }
 }

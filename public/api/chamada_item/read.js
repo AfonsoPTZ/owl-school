@@ -1,5 +1,5 @@
 async function listarItensDaChamada(chamadaId) {
-  const resp = await fetch("/owl-school/app/Routes/chamada_item.php?chamada_id=" + chamadaId, {
+  const resp = await fetch("/owl-school/api/chamada_item?chamada_id=" + chamadaId, {
       method: "GET"
     });
   const dados = await resp.json();

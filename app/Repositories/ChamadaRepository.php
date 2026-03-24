@@ -6,9 +6,9 @@ use App\Models\Chamada;
 
 class ChamadaRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,24 +19,15 @@ class ChamadaRepository
             "INSERT INTO chamada (data) VALUES (?)"
         );
 
-        if (!$stmt) {
+        if (!$stmt->execute([$chamada->data])) {
             return false;
         }
 
-        $stmt->bind_param(
-            "s",
-            $chamada->data
-        );
-
-        $executou = $stmt->execute();
-
-        if ($executou && $stmt->affected_rows > 0) {
-            $chamada->id = $this->conn->insert_id;
-            $stmt->close();
+        if ($stmt->rowCount() > 0) {
+            $chamada->id = $this->conn->lastInsertId();
             return true;
         }
 
-        $stmt->close();
         return false;
     }
 
@@ -50,19 +41,9 @@ class ChamadaRepository
             return false;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->execute([$id]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findAll(): array
@@ -75,21 +56,16 @@ class ChamadaRepository
             return [];
         }
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
+        if (!$stmt->execute()) {
             return [];
         }
 
-        $resultado = $stmt->get_result();
         $chamadas = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $chamadas[] = $linha;
         }
 
-        $stmt->close();
         return $chamadas;
     }
 
@@ -103,22 +79,11 @@ class ChamadaRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "si",
+        $stmt->execute([
             $chamada->data,
             $chamada->id
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

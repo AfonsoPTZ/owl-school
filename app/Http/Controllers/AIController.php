@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DTOs\AIDTO;
-use App\Services\AIService;
+use App\Services\AI\AIService;
 
 class AIController extends BaseController
 {
@@ -15,15 +15,30 @@ class AIController extends BaseController
         $this->service = new AIService($conn);
     }
 
-    public function chat(): void
+    public function index(): void
     {
         try {
-            $dto = new AIDTO($_POST);
-            $result = $this->service->chat($dto);
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
+            $dto = new AIDTO($data);
 
+            if ($dto->pergunta === '') {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Pergunta obrigatória.'
+                ], 400);
+                return;
+            }
+
+            $result = $this->service->chat($dto);
             $this->json($result, $result['status'] ?? 200);
         } catch (\Throwable $e) {
-            $this->handleException($e, 'chat');
+            $this->handleException($e, 'AIController::index');
         }
+    }
+
+    // Alias para POST requests (HTTP method mapping)
+    public function create(): void
+    {
+        $this->index();
     }
 }

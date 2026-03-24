@@ -6,9 +6,9 @@ use App\Models\Comunicado;
 
 class ComunicadoRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,25 +19,18 @@ class ComunicadoRepository
             "INSERT INTO comunicado (titulo, corpo) VALUES (?, ?)"
         );
 
-        if (!$stmt) {
+        if (!$stmt->execute([
+            $comunicado->titulo,
+            $comunicado->corpo
+        ])) {
             return false;
         }
 
-        $stmt->bind_param(
-            "ss",
-            $comunicado->titulo,
-            $comunicado->corpo
-        );
-
-        $executou = $stmt->execute();
-
-        if ($executou && $stmt->affected_rows > 0) {
-            $comunicado->id = $this->conn->insert_id;
-            $stmt->close();
+        if ($stmt->rowCount() > 0) {
+            $comunicado->id = $this->conn->lastInsertId();
             return true;
         }
 
-        $stmt->close();
         return false;
     }
 
@@ -51,19 +44,9 @@ class ComunicadoRepository
             return false;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->execute([$id]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findAll(): array
@@ -76,21 +59,16 @@ class ComunicadoRepository
             return [];
         }
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
+        if (!$stmt->execute()) {
             return [];
         }
 
-        $resultado = $stmt->get_result();
         $comunicados = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $comunicados[] = $linha;
         }
 
-        $stmt->close();
         return $comunicados;
     }
 
@@ -104,23 +82,12 @@ class ComunicadoRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "ssi",
+        $stmt->execute([
             $comunicado->titulo,
             $comunicado->corpo,
             $comunicado->id
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

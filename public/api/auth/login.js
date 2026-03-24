@@ -10,7 +10,7 @@ const email = document.getElementById("email").value.trim();
 
   formularioDados.append("email", email);
   formularioDados.append("senha", senha);
-  const resposta = await fetch("/owl-school/app/Routes/login.php", {
+  const resposta = await fetch("/owl-school/api/login", {
     method: "POST",
     body: formularioDados,
     credentials: 'include'

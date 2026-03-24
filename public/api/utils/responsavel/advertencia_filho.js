@@ -1,5 +1,8 @@
 async function carregarAdvertencias() {
-  const response = await fetch("/owl-school/app/Routes/utils_responsavel.php?action=getAdvertenciasFilho", { method: "POST" });
+  const response = await fetch("/owl-school/api/utils_responsavel?action=getAdvertenciasFilho", { 
+    method: "GET",
+    credentials: "include"
+  });
   const resultado = await response.json();
   const corpoTabela = document.getElementById("tbodyAdvertencias");
     corpoTabela.innerHTML = "";

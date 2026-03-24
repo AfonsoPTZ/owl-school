@@ -6,9 +6,9 @@ use App\Models\Advertencia;
 
 class AdvertenciaRepository
 {
-    private \mysqli $conn;
+    private \PDO $conn;
 
-    public function __construct(\mysqli $conn)
+    public function __construct(\PDO $conn)
     {
         $this->conn = $conn;
     }
@@ -19,43 +19,30 @@ class AdvertenciaRepository
             "INSERT INTO advertencia (titulo, descricao) VALUES (?, ?)"
         );
 
-        if (!$stmt) {
+        if (!$stmt->execute([
+            $advertencia->titulo,
+            $advertencia->descricao
+        ])) {
             return false;
         }
 
-        $stmt->bind_param(
-            "ss",
-            $advertencia->titulo,
-            $advertencia->descricao
-        );
-
-        $executou = $stmt->execute();
-
-        if ($executou && $stmt->affected_rows > 0) {
-            $advertencia->id = $this->conn->insert_id;
+        if ($stmt->rowCount() > 0) {
+            $advertencia->id = $this->conn->lastInsertId();
 
             $stmt_relacao = $this->conn->prepare(
                 "INSERT INTO aluno_advertencia (advertencia_id, aluno_id) VALUES (?, ?)"
             );
 
             if (!$stmt_relacao) {
-                $stmt->close();
                 return false;
             }
 
-            $stmt_relacao->bind_param(
-                "ii",
+            return $stmt_relacao->execute([
                 $advertencia->id,
                 $aluno_id
-            );
-
-            $relacao_executou = $stmt_relacao->execute();
-            $stmt_relacao->close();
-            $stmt->close();
-            return $relacao_executou;
+            ]);
         }
 
-        $stmt->close();
         return false;
     }
 
@@ -69,19 +56,9 @@ class AdvertenciaRepository
             return false;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->execute([$id]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $deletou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $deletou;
+        return $stmt->rowCount() > 0;
     }
 
     public function findAll(): array
@@ -104,21 +81,16 @@ class AdvertenciaRepository
             return [];
         }
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
+        if (!$stmt->execute()) {
             return [];
         }
 
-        $resultado = $stmt->get_result();
         $advertencias = [];
 
-        while ($linha = $resultado->fetch_assoc()) {
+        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $advertencias[] = $linha;
         }
 
-        $stmt->close();
         return $advertencias;
     }
 
@@ -132,23 +104,12 @@ class AdvertenciaRepository
             return false;
         }
 
-        $stmt->bind_param(
-            "ssi",
+        $stmt->execute([
             $advertencia->titulo,
             $advertencia->descricao,
             $advertencia->id
-        );
+        ]);
 
-        $executou = $stmt->execute();
-
-        if (!$executou) {
-            $stmt->close();
-            return false;
-        }
-
-        $atualizou = $stmt->affected_rows > 0;
-
-        $stmt->close();
-        return $atualizou;
+        return $stmt->rowCount() > 0;
     }
 }

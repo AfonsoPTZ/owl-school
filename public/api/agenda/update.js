@@ -17,7 +17,7 @@ let idDoHorarioAtual = null;
   const inicio     = document.getElementById("edit_inicio").value;
   const fim        = document.getElementById("edit_fim").value;
   const disciplina = document.getElementById("edit_disciplina").value;
-  const resposta = await fetch("/owl-school/app/Routes/agenda.php", {
+  const resposta = await fetch("/owl-school/api/agenda", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

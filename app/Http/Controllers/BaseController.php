@@ -6,7 +6,7 @@ use App\Utils\Logger;
 
 class BaseController
 {
-    protected ?\mysqli $conn;
+    protected ?\PDO $conn;
 
     public function __construct($conn = null)
     {

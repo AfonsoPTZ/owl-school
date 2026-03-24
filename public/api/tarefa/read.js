@@ -1,6 +1,6 @@
 async function carregarTarefas() {
   const user = await getSessionUser();
-  const response = await fetch("/owl-school/app/Routes/tarefa.php", { method: "GET" });
+  const response = await fetch("/owl-school/api/tarefa", { method: "GET" });
   const resultado = await response.json();
   const tipoUsuario = user.tipo_usuario;
   const corpoTabela = document.getElementById("tbodyTarefas");

@@ -5,7 +5,7 @@ let idDaChamadaAtual = null;
   const elementoModal = document.getElementById("editModalChamada");
   const modal = new bootstrap.Modal(elementoModal);
   modal.show();
-  const resposta = await fetch("/owl-school/app/Routes/chamada.php", { method: "GET" });
+  const resposta = await fetch("/owl-school/api/chamada", { method: "GET" });
   const dados = await resposta.json();
   const chamada = dados.chamadas.find(chamada => String(chamada.id) === String(idChamada));
 
@@ -13,7 +13,7 @@ let idDaChamadaAtual = null;
 }
   async function salvarChamada() {
   const data = document.getElementById("edit_data_chamada").value;
-  const resposta = await fetch("/owl-school/app/Routes/chamada.php", {
+  const resposta = await fetch("/owl-school/api/chamada", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

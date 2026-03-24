@@ -12,7 +12,7 @@ let idAlunoAtualEditarChamada = null;
 }
   async function salvarEdicaoChamadaItem() {
   const status = document.getElementById("edit_status").value;
-  const resposta = await fetch("/owl-school/app/Routes/chamada_item.php", {
+  const resposta = await fetch("/owl-school/api/chamada_item", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

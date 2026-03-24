@@ -6,8 +6,15 @@ class AIDTO
 {
     public string $pergunta;
 
-    public function __construct(array $dados)
+    public function __construct(array $data)
     {
-        $this->pergunta = trim($dados['pergunta'] ?? '');
+        $this->pergunta = trim($data['pergunta'] ?? '');
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'pergunta' => $this->pergunta
+        ];
     }
 }

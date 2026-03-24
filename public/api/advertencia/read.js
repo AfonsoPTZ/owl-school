@@ -1,7 +1,7 @@
 async function carregarAdvertencias() {
   const user = await getSessionUser();
   const tipoUsuario = user.tipo_usuario;
-  const response = await fetch("/owl-school/app/Routes/advertencia.php", { method: "GET" });
+  const response = await fetch("/owl-school/api/advertencia", { method: "GET" });
   const resultado = await response.json();
   const corpoTabela = document.getElementById("tbodyAdvertencias");
     corpoTabela.innerHTML = "";
