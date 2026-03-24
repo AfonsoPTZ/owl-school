@@ -2,10 +2,27 @@
 
 namespace App\Services\AI;
 
+/**
+ * PromptBuilder - Constrói prompts otimizados para o Google Gemini
+ * 
+ * Responsável por:
+ * - Criar system instructions claros para classificação de intenção
+ * - Montar payloads para detecção de intenção (intent detection)
+ * - Montar payloads para geração de resposta (answer generation)
+ * - Incluir contexto do usuário (papel, nome, etc)
+ * - Manter contexto de conversa anterior (follow-ups)
+ */
 class PromptBuilder
 {
+    /**
+     * Constrói payload para detecção de intenção
+     * 
+     * RetornaJSON estruturado que Gemini classifica
+     * Ex: { "intent": "consultar_tarefas", "materia": null, "periodo": null }
+     */
     public function buildIntentPayload(string $pergunta): array
     {
+        // System instruction define o classificador
         $systemInstruction = <<<TXT
 Você é um classificador de intenção do sistema escolar Owl School.
 
@@ -56,8 +73,8 @@ TXT;
                 ]
             ],
             'generationConfig' => [
-                'temperature' => 0,
-                'maxOutputTokens' => 120,
+                'temperature' => 0,  // Determinístico: sempre mesma resposta
+                'maxOutputTokens' => 120,  // Apenas JSON pequenino
                 'response_mime_type' => 'application/json',
                 'response_schema' => [
                     'type' => 'OBJECT',
@@ -90,6 +107,15 @@ TXT;
         ];
     }
 
+    /**
+     * Constrói payload para geração de resposta
+     * 
+     * Inclui:
+     * - System instruction com contexto do usuário
+     * - Contexto anterior (para follow-ups)
+     * - Dados buscados do sistema
+     * - Instrução para não inventar informações
+     */
     public function buildAnswerPayload(
         string $pergunta,
         array $intentData,
@@ -102,18 +128,21 @@ TXT;
         $role = $userContext['role'] ?? 'desconhecido';
         $studentName = $userContext['student_name'] ?? null;
 
+        // Adapta instruções conforme papel do usuário
         $roleInstruction = match ($role) {
             'responsavel' => "O usuário logado é um RESPONSÁVEL. Nunca trate esse usuário como aluno. Quando falar dos dados, diga 'seu filho' ou use o nome do aluno {$studentName}.",
             'professor' => "O usuário logado é um PROFESSOR. Nunca trate esse usuário como aluno.",
             default => "O usuário logado é um ALUNO. Você pode responder usando 'você'."
         };
 
+        // Inclui contexto anterior se for follow-up
         $followUpHint = '';
         if ($lastIntent && $lastData) {
             $followUpHint = "\n\nCONTEXTO ANTERIOR: A pergunta anterior foi sobre {$lastIntent}. Os dados anteriores podem ser úteis para responder essa pergunta sobre {$intentData['intent']}.";
             $followUpHint .= "\nPergunta anterior respondida: {$previousResponse}";
         }
 
+        // System instruction com regras para a resposta
         $systemInstruction = <<<TXT
 Você é o assistente escolar do Owl School.
 
@@ -127,6 +156,7 @@ Regras obrigatórias:
 - {$roleInstruction}{$followUpHint}
 TXT;
 
+        // Monta contexto estruturado para Gemini
         $contextData = [
             'pergunta' => $pergunta,
             'intent_data' => $intentData,
@@ -134,6 +164,7 @@ TXT;
             'user_context' => $userContext
         ];
 
+        // Inclui contexto anterior se disponível
         if ($lastIntent && $lastData) {
             $contextData['contexto_anterior'] = [
                 'intent' => $lastIntent,
@@ -144,7 +175,7 @@ TXT;
 
         $contexto = json_encode($contextData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
-        // Se for agenda, formatar de forma mais legível
+        // Se for agenda, formata agenda de forma legível para Gemini
         if (($intentData['intent'] ?? null) === 'consultar_agenda') {
             $agendaFormatada = $this->formatAgendaParaGemini($dados['items'] ?? []);
             $contexto = str_replace(
@@ -169,12 +200,16 @@ TXT;
                 ]
             ],
             'generationConfig' => [
-                'temperature' => 0.2,
-                'maxOutputTokens' => 500
+                'temperature' => 0.2,  // Pouca variação (mais consistente)
+                'maxOutputTokens' => 500  // Respostas mais formadas
             ]
         ];
     }
 
+    /**
+     * Formata agenda em texto legível para o modelo Gemini
+     * Agrupa por dia da semana e formata com horários
+     */
     private function formatAgendaParaGemini(array $items): string
     {
         if (empty($items)) {
@@ -184,6 +219,7 @@ TXT;
         $agendasPorDia = [];
         $diasOrdenados = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
 
+        // Agrupa por dia da semana
         foreach ($items as $item) {
             $dia = strtolower($item['dia_semana'] ?? '');
             if (!$dia) continue;
@@ -199,6 +235,7 @@ TXT;
             $agendasPorDia[$dia][] = "{$disciplina} ({$inicio} - {$fim})";
         }
 
+        // Formata em ordem cronológica
         $resultado = "AGENDA DE AULAS:\n";
 
         foreach ($diasOrdenados as $dia) {
@@ -215,6 +252,9 @@ TXT;
         return $resultado;
     }
 
+    /**
+     * Helper: Converte dia da semana para português com acentos
+     */
     private function traduzirDia(string $dia): string
     {
         return match ($dia) {

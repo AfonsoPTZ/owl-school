@@ -4,6 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Utils\Logger;
 
+/**
+ * BaseController - Classe base para todos os controllers
+ * 
+ * Fornece:
+ * - json(): Retorna JSON com status HTTP apropriado
+ * - handleException(): Tratamento padrão de exceções
+ */
 class BaseController
 {
     protected ?\PDO $conn;
@@ -13,12 +20,18 @@ class BaseController
         $this->conn = $conn;
     }
 
+    /**
+     * Retorna resposta JSON com status HTTP
+     */
     protected function json(array $data, int $statusCode = 200): void
     {
         http_response_code($statusCode);
         echo json_encode($data);
     }
 
+    /**
+     * Trata exceção: loga erro e retorna resposta 500
+     */
     protected function handleException(\Throwable $e, string $action): void
     {
         Logger::error("Exception in {$action}: " . $e->getMessage());

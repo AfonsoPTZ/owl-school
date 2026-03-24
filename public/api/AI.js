@@ -19,8 +19,6 @@ async function enviarPerguntaIA() {
 
     const resultado = await response.json();
 
-    console.log("Intent detectada:", resultado.intent);
-
     if (!resultado.success) {
       respostaBox.innerText = resultado.message || "Erro ao processar.";
       return;

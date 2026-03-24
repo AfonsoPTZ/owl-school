@@ -2,8 +2,22 @@
 
 namespace App\Services\AI;
 
+/**
+ * AnswerFormatter - Formata respostas em texto legível para o user
+ * 
+ * Responsável por:
+ * - Converter dados estruturados em texto natural
+ * - Usar fallback quando Gemini não está disponível
+ * - Formatar diferentes tipos de conteúdo (tarefas, provas, notas, etc)
+ * - Adaptar resposta ao contexto do usuário (aluno vs responsável vs professor)
+ */
 class AnswerFormatter
 {
+    /**
+     * Formata resposta de fallback
+     * Chamado quando Gemini está indisponível
+     * Roteia para o método correto baseado na intenção
+     */
     public function fallback(array $intentData, array $dados, array $userContext): string
     {
         $intent = $intentData['intent'] ?? 'desconhecido';
@@ -21,6 +35,10 @@ class AnswerFormatter
         };
     }
 
+    /**
+     * Retorna o sujeito da resposta adaptado ao contexto do usuário
+     * Ex: "você", "seu filho João", "a turma"
+     */
     private function subject(array $userContext): string
     {
         $role = $userContext['role'] ?? 'aluno';
@@ -33,6 +51,9 @@ class AnswerFormatter
         };
     }
 
+    /**
+     * Formata lista de tarefas/deveres em texto
+     */
     private function formatTarefas(array $items, array $userContext): string
     {
         $subject = $this->subject($userContext);
@@ -56,6 +77,9 @@ class AnswerFormatter
         return trim($resposta);
     }
 
+    /**
+     * Formata lista de provas em texto
+     */
     private function formatProvas(array $items, array $userContext): string
     {
         $subject = $this->subject($userContext);
@@ -80,6 +104,9 @@ class AnswerFormatter
         return trim($resposta);
     }
 
+    /**
+     * Formata lista de notas em texto
+     */
     private function formatNotas(array $items, array $userContext): string
     {
         $subject = $this->subject($userContext);
@@ -104,6 +131,9 @@ class AnswerFormatter
         return trim($resposta);
     }
 
+    /**
+     * Formata lista de advertências em texto
+     */
     private function formatAdvertencias(array $items, array $userContext): string
     {
         $subject = $this->subject($userContext);
@@ -128,6 +158,9 @@ class AnswerFormatter
         return trim($resposta);
     }
 
+    /**
+     * Formata lista de comunicados em texto
+     */
     private function formatComunicados(array $items, array $userContext): string
     {
         if (empty($items)) {
@@ -149,6 +182,10 @@ class AnswerFormatter
         return trim($resposta);
     }
 
+    /**
+     * Formata agenda/horários de aulas em texto
+     * Agrupa por dia da semana em ordem cronológica
+     */
     private function formatAgenda(array $items, array $userContext): string
     {
         if (empty($items)) {
@@ -172,7 +209,7 @@ class AnswerFormatter
             $agendasPorDia[$dia][] = "{$disciplina} ({$inicio} - {$fim})";
         }
 
-        // Ordenar dias da semana
+        // Ordenar dias da semana em sequência
         $diasOrdenados = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
         $diasExistentes = array_intersect($diasOrdenados, array_keys($agendasPorDia));
 
@@ -198,6 +235,9 @@ class AnswerFormatter
         return trim($resposta);
     }
 
+    /**
+     * Helper: Converte dia da semana para português com acento
+     */
     private function traduzirDia(string $dia): string
     {
         return match ($dia) {
@@ -212,6 +252,10 @@ class AnswerFormatter
         };
     }
 
+    /**
+     * Formata frequência/presença em texto
+     * Mostra estatísticas + detalhes se houver poucos registros
+     */
     private function formatChamada(array $items, array $userContext): string
     {
         $subject = $this->subject($userContext);
@@ -224,6 +268,7 @@ class AnswerFormatter
         $presentes = 0;
         $ausentes = 0;
 
+        // Contabiliza presentes vs ausentes
         foreach ($items as $item) {
             $status = strtolower($item['status'] ?? '');
             if ($status === 'presente' || $status === 'presença') {
@@ -233,11 +278,13 @@ class AnswerFormatter
             }
         }
 
+        // Monta resposta com estatísticas
         $resposta = "Frequência de {$subject}:\n";
         $resposta .= "Total de registros: {$count}\n";
         $resposta .= "Presentes: {$presentes}\n";
         $resposta .= "Ausentes: {$ausentes}";
 
+        // Se poucos registros, mostra detalhes
         if ($count <= 10) {
             $resposta .= "\n\nDetalhes:";
             foreach ($items as $item) {
