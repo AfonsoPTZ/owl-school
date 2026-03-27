@@ -1,17 +1,25 @@
 async function fazerLogout() {
-  const resposta = await fetch("/owl-school/api/logout", {
-    method: "POST",
-    credentials: 'include'
-  });
-  if (resposta.ok) {
+  try {
+    const resposta = await fetch("/owl-school/api/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    if (!resposta.ok) {
+      alert("Erro ao sair.");
+      return;
+    }
+
     window.location.href = "/owl-school/public/index.html";
-  } else {
-    alert("Erro ao sair.");
+  } catch (error) {
+    console.error("Erro ao fazer logout:", error);
+    alert("Erro de conex\u00e3o com o servidor.");
   }
 }
 
 document.addEventListener("click", function (evento) {
   const botaoLogout = evento.target.closest("#btnLogout");
+
   if (!botaoLogout) {
     return;
   }
@@ -20,7 +28,6 @@ document.addEventListener("click", function (evento) {
   evento.stopPropagation();
 
   fazerLogout();
-
 });
 
 

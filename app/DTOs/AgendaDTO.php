@@ -12,10 +12,15 @@ class AgendaDTO
 
     public function __construct(array $dados)
     {
-        $this->diaSemana = trim($dados['dia_semana'] ?? $dados['diaSemana'] ?? '');
-        $this->inicio = trim($dados['inicio'] ?? '');
-        $this->fim = trim($dados['fim'] ?? '');
-        $this->disciplina = trim($dados['disciplina'] ?? '');
+        $this->diaSemana = $this->string($dados['dia_semana'] ?? $dados['diaSemana'] ?? null);
+        $this->inicio = $this->string($dados['inicio'] ?? null);
+        $this->fim = $this->string($dados['fim'] ?? null);
+        $this->disciplina = $this->string($dados['disciplina'] ?? null);
         $this->id = isset($dados['id']) ? (int) $dados['id'] : null;
+    }
+
+    private function string(?string $value): string
+    {
+        return trim($value ?? '');
     }
 }

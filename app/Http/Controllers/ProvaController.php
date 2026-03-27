@@ -17,48 +17,39 @@ class ProvaController extends BaseController
 
     public function create(): void
     {
-        try {
-            $dto = new ProvaDTO($_POST);
-            $result = $this->service->create($dto);
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'create');
-        }
+        $this->executeWithDto('create');
     }
 
     public function index(): void
     {
-        try {
-            $result = $this->service->findAll();
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'index');
-        }
+        $this->executeAction(fn() => $this->service->findAll(), 'index');
     }
 
     public function update(): void
     {
-        try {
-            $dto = new ProvaDTO($_POST);
-            $result = $this->service->update($dto);
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'update');
-        }
+        $this->executeWithDto('update');
     }
 
     public function delete(): void
     {
-        try {
-            $dto = new ProvaDTO($_POST);
-            $result = $this->service->delete($dto);
+        $this->executeWithDto('delete');
+    }
 
+    private function executeWithDto(string $action): void
+    {
+        $this->executeAction(function () use ($action) {
+            $dto = new ProvaDTO($_POST);
+            return $this->service->$action($dto);
+        }, $action);
+    }
+
+    private function executeAction(callable $callback, string $action): void
+    {
+        try {
+            $result = $callback();
             $this->json($result, $result['status'] ?? 200);
         } catch (\Throwable $e) {
-            $this->handleException($e, 'delete');
+            $this->handleException($e, $action);
         }
     }
 }

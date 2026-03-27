@@ -1,19 +1,37 @@
 async function excluirHorario(id) {
-  if (!id) return;
-  if (!confirm("Tem certeza que deseja excluir este horário?")) return;
-  const resposta = await fetch("/owl-school/api/agenda", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id })
-  });
-  const resultado = await resposta.json();
-  if (resultado.success) {
+  if (!id) {
+    alert("ID do horário não informado.");
+    return;
+  }
 
-    alert(resultado.message);
-  if (typeof carregarAgenda === "function") {carregarAgenda();}
+  if (!confirm("Tem certeza que deseja excluir este horário?")) {
+    return;
+  }
 
-  } else {
-    alert(resultado.message);
+  try {
+    const resposta = await fetch("/owl-school/api/agenda", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resultado.success) {
+      alert(resultado.message || "Erro ao excluir horário.");
+      return;
+    }
+
+    alert(resultado.message || "Horário excluído com sucesso.");
+
+    if (typeof carregarAgenda === "function") {
+      carregarAgenda();
+    }
+  } catch (error) {
+    console.error("Erro ao excluir horário:", error);
+    alert("Erro de conexão com o servidor.");
   }
 }
 

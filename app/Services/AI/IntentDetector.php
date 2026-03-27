@@ -122,9 +122,6 @@ class IntentDetector
             }
         }
 
-        // Log para debug: qual intenção foi detectada
-        \App\Utils\Logger::info("IntentDetector fallback: pergunta='{$pergunta}', intent detected={$intent}");
-
         return [
             'success' => true,
             'intent_data' => [

@@ -6,30 +6,10 @@ use App\DTOs\ChamadaDTO;
 
 class ChamadaValidator
 {
-    private function validateDate(string $date): array
-    {
-        $format = 'Y-m-d';
-        $d = \DateTime::createFromFormat($format, $date);
-
-        if (!$d || $d->format($format) !== $date) {
-            return [
-                'success' => false,
-                'message' => 'Formato de data de chamada deve ser YYYY-MM-DD.',
-                'status'  => 422
-            ];
-        }
-
-        return ['success' => true];
-    }
-
     public function validateCreate(ChamadaDTO $dto): array
     {
-        if (empty(trim($dto->data ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->data)) {
+            return $this->error('Preencha todos os campos necess?rios.');
         }
 
         return $this->validateDate($dto->data);
@@ -38,19 +18,11 @@ class ChamadaValidator
     public function validateUpdate(ChamadaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID n?o fornecido.');
         }
 
-        if (empty(trim($dto->data ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->data)) {
+            return $this->error('Preencha todos os campos necess?rios.');
         }
 
         return $this->validateDate($dto->data);
@@ -59,13 +31,35 @@ class ChamadaValidator
     public function validateDelete(ChamadaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID n?o fornecido.');
         }
 
         return ['success' => true];
+    }
+
+    private function validateDate(string $date): array
+    {
+        $format = 'Y-m-d';
+        $parsedDate = \DateTime::createFromFormat($format, $date);
+
+        if (!$parsedDate || $parsedDate->format($format) !== $date) {
+            return $this->error('Formato de data deve ser YYYY-MM-DD.');
+        }
+
+        return ['success' => true];
+    }
+
+    private function isBlank(?string $value): bool
+    {
+        return empty(trim($value ?? ''));
+    }
+
+    private function error(string $message, int $status = 422): array
+    {
+        return [
+            'success' => false,
+            'message' => $message,
+            'status' => $status
+        ];
     }
 }

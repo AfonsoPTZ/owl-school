@@ -10,8 +10,13 @@ class ProvaDTO
 
     public function __construct(array $dados)
     {
-        $this->titulo = trim($dados['titulo'] ?? '');
-        $this->data = trim($dados['data'] ?? '');
+        $this->titulo = $this->string($dados['titulo'] ?? null);
+        $this->data = $this->string($dados['data'] ?? null);
         $this->id = isset($dados['id']) ? (int) $dados['id'] : null;
+    }
+
+    private function string(?string $value): string
+    {
+        return trim($value ?? '');
     }
 }

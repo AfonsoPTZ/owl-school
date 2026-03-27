@@ -19,55 +19,64 @@ class AuthService
 
     public function login(AuthDTO $dto): array
     {
-        $validacao = $this->validator->validateLogin($dto);
+        try {
+            $validacao = $this->validator->validateLogin($dto);
 
-        if (!$validacao['success']) {
-            return $validacao;
-        }
+            if (!$validacao['success']) {
+                return $validacao;
+            }
 
-        $usuario = $this->repository->findByEmail($dto->email);
+            $usuario = $this->repository->findByEmail($dto->email);
 
-        if (!$usuario) {
+            if (!$usuario) {
+                return $this->response(false, 'Email ou senha incorretos.', 401);
+            }
+
+            if ($dto->senha !== $usuario['senha']) {
+                return $this->response(false, 'Email ou senha incorretos.', 401);
+            }
+
+            $_SESSION['user_id'] = $usuario['id'];
+            $_SESSION['user_name'] = $usuario['nome'];
+            $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
+
             return [
-                'success' => false,
-                'message' => 'Email ou senha incorretos.',
-                'status'  => 401
+                'success' => true,
+                'message' => 'Login realizado com sucesso.',
+                'status' => 200,
+                'usuario' => [
+                    'id' => $usuario['id'],
+                    'nome' => $usuario['nome'],
+                    'tipo_usuario' => $usuario['tipo_usuario']
+                ]
             ];
+        } catch (\Throwable $e) {
+            return $this->response(false, 'Erro ao realizar login: ' . $e->getMessage(), 500);
         }
-
-        if ($dto->senha !== $usuario['senha']) {
-            return [
-                'success' => false,
-                'message' => 'Email ou senha incorretos.',
-                'status'  => 401
-            ];
-        }
-
-        $_SESSION['user_id'] = $usuario['id'];
-        $_SESSION['user_name'] = $usuario['nome'];
-        $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
-
-        return [
-            'success' => true,
-            'message' => 'Login realizado com sucesso.',
-            'status'  => 200,
-            'usuario' => [
-                'id' => $usuario['id'],
-                'nome' => $usuario['nome'],
-                'tipo_usuario' => $usuario['tipo_usuario']
-            ]
-        ];
     }
 
     public function logout(): array
     {
-        session_unset();
-        session_destroy();
+        try {
+            session_unset();
+            session_destroy();
 
+            return [
+                'success' => true,
+                'status' => 200,
+                'redirect' => true
+            ];
+        } catch (\Throwable $e) {
+            return $this->response(false, 'Erro ao fazer logout: ' . $e->getMessage(), 500);
+        }
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
         return [
-            'success' => true,
-            'status'  => 200,
-            'redirect' => true
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

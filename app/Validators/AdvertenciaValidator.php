@@ -8,12 +8,8 @@ class AdvertenciaValidator
 {
     public function validateCreate(AdvertenciaDTO $dto): array
     {
-        if (empty(trim($dto->titulo ?? '')) || empty(trim($dto->descricao ?? '')) || empty($dto->aluno_id)) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->titulo) || $this->isBlank($dto->descricao) || empty($dto->aluno_id)) {
+            return $this->error('Preencha todos os campos necessários.');
         }
 
         return ['success' => true];
@@ -22,19 +18,11 @@ class AdvertenciaValidator
     public function validateUpdate(AdvertenciaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID não fornecido.');
         }
 
-        if (empty(trim($dto->titulo ?? '')) || empty(trim($dto->descricao ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->titulo) || $this->isBlank($dto->descricao)) {
+            return $this->error('Preencha todos os campos necessários.');
         }
 
         return ['success' => true];
@@ -43,13 +31,23 @@ class AdvertenciaValidator
     public function validateDelete(AdvertenciaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID não fornecido.');
         }
 
         return ['success' => true];
+    }
+
+    private function isBlank(?string $value): bool
+    {
+        return empty(trim($value ?? ''));
+    }
+
+    private function error(string $message, int $status = 422): array
+    {
+        return [
+            'success' => false,
+            'message' => $message,
+            'status' => $status
+        ];
     }
 }

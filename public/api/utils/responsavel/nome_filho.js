@@ -1,3 +1,8 @@
+/**
+ * Carrega nome do filho (para responsável)
+ * Requisição: GET /owl-school/api/utils_responsavel?action=getNomeFilho
+ * Popula elemento com id='nomeFilho'
+ */
 async function carregarNomeFilho() {
   const response = await fetch("/owl-school/api/utils_responsavel?action=getNomeFilho", { 
     method: "GET",

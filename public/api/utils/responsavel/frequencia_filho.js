@@ -1,3 +1,8 @@
+/**
+ * Carrega frequência/presença do filho (para responsável)
+ * Requisição: GET /owl-school/api/utils_responsavel?action=getFrequenciasFilho
+ * Popula tabela com id='tbodyFrequencias'
+ */
 async function carregarFrequenciasFilhos() {
   const response = await fetch("/owl-school/api/utils_responsavel?action=getFrequenciasFilho", { 
     method: "GET",

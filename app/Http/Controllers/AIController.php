@@ -5,6 +5,14 @@ namespace App\Http\Controllers;
 use App\DTOs\AIDTO;
 use App\Services\AI\AIService;
 
+/**
+ * AIController - Orquestrador de requisições de IA
+ * 
+ * Responsabilidades:
+ * - Receber requisições de chat/pergunta
+ * - Encaminhar para AIService
+ * - Retornar respostas formatadas
+ */
 class AIController extends BaseController
 {
     private AIService $service;
@@ -15,30 +23,51 @@ class AIController extends BaseController
         $this->service = new AIService($conn);
     }
 
+    /**
+     * Chat - Endpoint principal para processar perguntas
+     */
     public function index(): void
     {
-        try {
-            $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $this->executeAction(function () {
+            $data = $this->getInputData();
             $dto = new AIDTO($data);
-
-            if ($dto->pergunta === '') {
-                $this->json([
-                    'success' => false,
-                    'message' => 'Pergunta obrigatória.'
-                ], 400);
-                return;
-            }
-
-            $result = $this->service->chat($dto);
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'AIController::index');
-        }
+            return $this->service->chat($dto);
+        }, 'chat');
     }
 
-    // Alias para POST requests (HTTP method mapping)
+    /**
+     * Create - Alias para POST requests
+     */
     public function create(): void
     {
         $this->index();
+    }
+
+    /**
+     * Recupera dados do request (JSON ou FormData)
+     */
+    private function getInputData(): array
+    {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true) ?? [];
+
+        if (empty($data)) {
+            $data = $_POST;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Executa ação com tratamento de erro
+     */
+    private function executeAction(callable $callback, string $action): void
+    {
+        try {
+            $result = $callback();
+            $this->json($result, $result['status'] ?? 200);
+        } catch (\Throwable $e) {
+            $this->handleException($e, $action);
+        }
     }
 }

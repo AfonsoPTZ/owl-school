@@ -1,18 +1,37 @@
 async function excluirChamadaItem(chamadaId, alunoId) {
-  if (!confirm("Tem certeza que deseja excluir este registro de presença?")) return;
-  const resposta = await fetch("/owl-school/api/chamada_item", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chamadaId: chamadaId, alunoId: alunoId })
-  });
-  const resultado = await resposta.json();
-  if (resultado.success) {
+  if (!chamadaId || !alunoId) {
+    alert("ID da presença não informado.");
+    return;
+  }
 
-    alert(resultado.message);
-  if (typeof listarItensDaChamada === "function") {listarItensDaChamada(chamadaId);}
+  if (!confirm("Tem certeza que deseja excluir este registro de presença?")) {
+    return;
+  }
 
-  } else {
-    alert(resultado.message);
+  try {
+    const resposta = await fetch("/owl-school/api/chamada_item", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ chamadaId, alunoId })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resultado.success) {
+      alert(resultado.message || "Erro ao excluir registro de presença.");
+      return;
+    }
+
+    alert(resultado.message || "Registro de presença excluído com sucesso.");
+
+    if (typeof listarItensDaChamada === "function") {
+      listarItensDaChamada(chamadaId);
+    }
+  } catch (error) {
+    console.error("Erro ao excluir registro de presença:", error);
+    alert("Erro de conexão com o servidor.");
   }
 }
 

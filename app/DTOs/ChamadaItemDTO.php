@@ -10,9 +10,18 @@ class ChamadaItemDTO
 
     public function __construct(array $dados)
     {
+        $this->chamadaId = $this->int($dados['chamadaId'] ?? $dados['chamada_id'] ?? null);
+        $this->alunoId = $this->int($dados['alunoId'] ?? $dados['aluno_id'] ?? null);
+        $this->status = $this->string($dados['status'] ?? null);
+    }
 
-        $this->chamadaId = (int) ($dados['chamadaId'] ?? $dados['chamada_id'] ?? 0);
-        $this->alunoId = (int) ($dados['alunoId'] ?? $dados['aluno_id'] ?? 0);
-        $this->status = trim($dados['status'] ?? '');
+    private function string(?string $value): string
+    {
+        return trim($value ?? '');
+    }
+
+    private function int(?int $value): int
+    {
+        return (int) ($value ?? 0);
     }
 }

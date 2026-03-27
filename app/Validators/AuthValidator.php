@@ -8,74 +8,40 @@ class AuthValidator
 {
     public function validateLogin(AuthDTO $dto): array
     {
-        if (empty(trim($dto->email ?? '')) || empty(trim($dto->senha ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos obrigatórios.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->email) || $this->isBlank($dto->senha)) {
+            return $this->error('Preencha todos os campos obrigatórios.');
         }
 
-        $emailValidation = $this->validateEmail($dto->email);
-        if (!$emailValidation['success']) {
-            return $emailValidation;
+        if (!filter_var($dto->email, FILTER_VALIDATE_EMAIL)) {
+            return $this->error('Formato de email inválido.');
         }
 
-        $passwordValidation = $this->validatePassword($dto->senha);
-        if (!$passwordValidation['success']) {
-            return $passwordValidation;
+        if (!preg_match('/@teste\.com$/', $dto->email)) {
+            return $this->error('Email deve terminar com @teste.com.');
         }
 
-        return [
-            'success' => true
-        ];
+        if (strlen($dto->senha) !== 6) {
+            return $this->error('Senha deve ter exatamente 6 caracteres.');
+        }
+
+        if (!ctype_digit($dto->senha)) {
+            return $this->error('Senha deve conter apenas números (0-9).');
+        }
+
+        return ['success' => true];
     }
 
-    private function validateEmail(string $email): array
+    private function isBlank(?string $value): bool
     {
-        $email = trim($email);
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return [
-                'success' => false,
-                'message' => 'Formato de email inválido.',
-                'status'  => 422
-            ];
-        }
-
-        if (!preg_match('/@teste\.com$/', $email)) {
-            return [
-                'success' => false,
-                'message' => 'Email must end with @teste.com.',
-                'status'  => 422
-            ];
-        }
-
-        return [
-            'success' => true
-        ];
+        return empty(trim($value ?? ''));
     }
 
-    private function validatePassword(string $password): array
+    private function error(string $message, int $status = 422): array
     {
-        if (strlen($password) !== 6) {
-            return [
-                'success' => false,
-                'message' => 'Password must be exactly 6 characters.',
-                'status'  => 422
-            ];
-        }
-
-        if (!ctype_digit($password)) {
-            return [
-                'success' => false,
-                'message' => 'Password must contain only numbers (0-9).',
-                'status'  => 422
-            ];
-        }
-
         return [
-            'success' => true
+            'success' => false,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

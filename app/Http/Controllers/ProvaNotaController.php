@@ -15,69 +15,53 @@ class ProvaNotaController extends BaseController
         $this->service = new ProvaNotaService($conn);
     }
 
-    /* ============================== */
-    /* INDEX / READ */
-    /* ============================== */
     public function index(): void
     {
-        try {
+        $this->executeAction(function() {
             $provaId = $_GET['prova_id'] ?? '';
 
             if (empty($provaId)) {
-                $this->json([
+                return [
                     'success' => false,
-                    'message' => 'ID da prova é obrigatório.',
+                    'message' => 'ID da prova e obrigatorio.',
                     'status' => 422
-                ], 422);
-                return;
+                ];
             }
 
-            $result = $this->service->findByProva((int)$provaId);
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'index');
-        }
+            return $this->service->findByProva((int)$provaId);
+        }, 'index');
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(): void
     {
-        try {
-            $dto = new ProvaNotaDTO($_POST);
-            $result = $this->service->create($dto);
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'create');
-        }
+        $this->executeWithDto('create');
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(): void
     {
-        try {
-            $dto = new ProvaNotaDTO($_POST);
-            $result = $this->service->update($dto);
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'update');
-        }
+        $this->executeWithDto('update');
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(): void
     {
-        try {
+        $this->executeWithDto('delete');
+    }
+
+    private function executeWithDto(string $action): void
+    {
+        $this->executeAction(function () use ($action) {
             $dto = new ProvaNotaDTO($_POST);
-            $result = $this->service->delete($dto);
+            return $this->service->$action($dto);
+        }, $action);
+    }
+
+    private function executeAction(callable $callback, string $action): void
+    {
+        try {
+            $result = $callback();
             $this->json($result, $result['status'] ?? 200);
         } catch (\Throwable $e) {
-            $this->handleException($e, 'delete');
+            $this->handleException($e, $action);
         }
     }
 }

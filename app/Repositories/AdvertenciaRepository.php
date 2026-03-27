@@ -52,10 +52,6 @@ class AdvertenciaRepository
             "DELETE FROM advertencia WHERE id = ?"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
         $stmt->execute([$id]);
 
         return $stmt->rowCount() > 0;
@@ -77,21 +73,9 @@ class AdvertenciaRepository
             ORDER BY advertencia.id DESC"
         );
 
-        if (!$stmt) {
-            return [];
-        }
+        $stmt->execute();
 
-        if (!$stmt->execute()) {
-            return [];
-        }
-
-        $advertencias = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $advertencias[] = $linha;
-        }
-
-        return $advertencias;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(Advertencia $advertencia): bool
@@ -99,10 +83,6 @@ class AdvertenciaRepository
         $stmt = $this->conn->prepare(
             "UPDATE advertencia SET titulo = ?, descricao = ? WHERE id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $advertencia->titulo,

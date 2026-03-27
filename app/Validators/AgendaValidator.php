@@ -6,42 +6,10 @@ use App\DTOs\AgendaDTO;
 
 class AgendaValidator
 {
-    private function validateDayOfWeek(string $day): array
-    {
-        $validDays = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
-
-        if (!in_array(strtolower($day), $validDays)) {
-            return [
-                'success' => false,
-                'message' => 'Dia deve ser: segunda, terca, quarta, quinta ou sexta.',
-                'status'  => 422
-            ];
-        }
-
-        return ['success' => true];
-    }
-
-    private function validateTime(string $time): array
-    {
-        if (!preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $time)) {
-            return [
-                'success' => false,
-                'message' => 'Formato de hora deve ser HH:MM (formato 24 horas).',
-                'status'  => 422
-            ];
-        }
-
-        return ['success' => true];
-    }
-
     public function validateCreate(AgendaDTO $dto): array
     {
-        if (empty(trim($dto->diaSemana ?? '')) || empty(trim($dto->inicio ?? '')) || empty(trim($dto->fim ?? '')) || empty(trim($dto->disciplina ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->diaSemana) || $this->isBlank($dto->inicio) || $this->isBlank($dto->fim) || $this->isBlank($dto->disciplina)) {
+            return $this->error('Preencha todos os campos necessários.');
         }
 
         $dayValidation = $this->validateDayOfWeek($dto->diaSemana);
@@ -65,19 +33,11 @@ class AgendaValidator
     public function validateUpdate(AgendaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID não fornecido.');
         }
 
-        if (empty(trim($dto->diaSemana ?? '')) || empty(trim($dto->inicio ?? '')) || empty(trim($dto->fim ?? '')) || empty(trim($dto->disciplina ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->diaSemana) || $this->isBlank($dto->inicio) || $this->isBlank($dto->fim) || $this->isBlank($dto->disciplina)) {
+            return $this->error('Preencha todos os campos necessários.');
         }
 
         $dayValidation = $this->validateDayOfWeek($dto->diaSemana);
@@ -101,13 +61,43 @@ class AgendaValidator
     public function validateDelete(AgendaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID not provided.',
-                'status'  => 422
-            ];
+            return $this->error('ID não fornecido.');
         }
 
         return ['success' => true];
+    }
+
+    private function validateDayOfWeek(string $day): array
+    {
+        $validDays = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+
+        if (!in_array(strtolower($day), $validDays)) {
+            return $this->error('Dia deve ser: segunda, terca, quarta, quinta ou sexta.');
+        }
+
+        return ['success' => true];
+    }
+
+    private function validateTime(string $time): array
+    {
+        if (!preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $time)) {
+            return $this->error('Formato de hora deve ser HH:MM (formato 24 horas).');
+        }
+
+        return ['success' => true];
+    }
+
+    private function isBlank(?string $value): bool
+    {
+        return empty(trim($value ?? ''));
+    }
+
+    private function error(string $message, int $status = 422): array
+    {
+        return [
+            'success' => false,
+            'message' => $message,
+            'status' => $status
+        ];
     }
 }

@@ -30,18 +30,10 @@ class AdvertenciaService
         $criou = $this->repository->createWithAluno($advertencia, $dto->aluno_id);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar advertência.',
-                'status'  => 500
-            ];
+            return $this->response(false, 'Erro ao criar advertência.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Advertência criada com sucesso.',
-            'status'  => 201
-        ];
+        return $this->response(true, 'Advertência criada com sucesso.', 201);
     }
 
     public function update(AdvertenciaDTO $dto): array
@@ -56,18 +48,10 @@ class AdvertenciaService
         $atualizou = $this->repository->update($advertencia);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Warning not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Advertência não encontrada para atualização.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Advertência atualizada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Advertência atualizada com sucesso.', 200);
     }
 
     public function delete(AdvertenciaDTO $dto): array
@@ -81,18 +65,10 @@ class AdvertenciaService
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return [
-                'success' => false,
-                'message' => 'Warning not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Advertência não encontrada para exclusão.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Advertência deletada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Advertência deletada com sucesso.', 200);
     }
 
     public function findAll(): array
@@ -102,7 +78,16 @@ class AdvertenciaService
         return [
             'success' => true,
             'advertencias' => $advertencias,
-            'status'  => 200
+            'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

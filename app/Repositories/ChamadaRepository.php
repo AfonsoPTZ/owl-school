@@ -37,10 +37,6 @@ class ChamadaRepository
             "DELETE FROM chamada WHERE id = ?"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
         $stmt->execute([$id]);
 
         return $stmt->rowCount() > 0;
@@ -52,21 +48,9 @@ class ChamadaRepository
             "SELECT id, data FROM chamada ORDER BY data DESC, id DESC"
         );
 
-        if (!$stmt) {
-            return [];
-        }
+        $stmt->execute();
 
-        if (!$stmt->execute()) {
-            return [];
-        }
-
-        $chamadas = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $chamadas[] = $linha;
-        }
-
-        return $chamadas;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(Chamada $chamada): bool
@@ -74,10 +58,6 @@ class ChamadaRepository
         $stmt = $this->conn->prepare(
             "UPDATE chamada SET data = ? WHERE id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $chamada->data,

@@ -30,18 +30,10 @@ class ChamadaService
         $criou = $this->repository->create($chamada);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar chamada.',
-                'status'  => 500
-            ];
+            return $this->response(false, 'Erro ao criar chamada.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Chamada criada com sucesso.',
-            'status'  => 201
-        ];
+        return $this->response(true, 'Chamada criada com sucesso.', 201);
     }
 
     public function update(ChamadaDTO $dto): array
@@ -56,18 +48,10 @@ class ChamadaService
         $atualizou = $this->repository->update($chamada);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Attendance not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Chamada não encontrada para atualização.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Chamada atualizada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Chamada atualizada com sucesso.', 200);
     }
 
     public function delete(ChamadaDTO $dto): array
@@ -81,18 +65,10 @@ class ChamadaService
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return [
-                'success' => false,
-                'message' => 'Attendance not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Chamada não encontrada para exclusão.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Chamada deletada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Chamada deletada com sucesso.', 200);
     }
 
     public function findAll(): array
@@ -102,7 +78,16 @@ class ChamadaService
         return [
             'success' => true,
             'chamadas' => $chamadas,
-            'status'  => 200
+            'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

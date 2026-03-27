@@ -1,3 +1,8 @@
+/**
+ * Carrega lista de alunos para o select/dropdown
+ * Requisição: GET /owl-school/api/utils?action=getAlunoSelect
+ * Popula o elemento com id='aluno_id'
+ */
 async function carregarListaAlunos() {
   const resposta = await fetch("/owl-school/api/utils?action=getAlunoSelect", { 
     method: "GET",

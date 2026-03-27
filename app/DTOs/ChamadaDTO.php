@@ -9,7 +9,12 @@ class ChamadaDTO
 
     public function __construct(array $dados)
     {
-        $this->data = trim($dados['data'] ?? '');
+        $this->data = $this->string($dados['data'] ?? null);
         $this->id = isset($dados['id']) ? (int) $dados['id'] : null;
+    }
+
+    private function string(?string $value): string
+    {
+        return trim($value ?? '');
     }
 }

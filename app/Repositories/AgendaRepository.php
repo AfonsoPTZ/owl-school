@@ -42,10 +42,6 @@ class AgendaRepository
             "DELETE FROM horarios_aula WHERE id = ?"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
         $stmt->execute([$id]);
 
         return $stmt->rowCount() > 0;
@@ -64,21 +60,9 @@ class AgendaRepository
             ORDER BY FIELD(dia_semana,'segunda','terca','quarta','quinta','sexta'), inicio"
         );
 
-        if (!$stmt) {
-            return [];
-        }
+        $stmt->execute();
 
-        if (!$stmt->execute()) {
-            return [];
-        }
-
-        $agendas = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $agendas[] = $linha;
-        }
-
-        return $agendas;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(Agenda $agenda): bool
@@ -86,10 +70,6 @@ class AgendaRepository
         $stmt = $this->conn->prepare(
             "UPDATE horarios_aula SET dia_semana = ?, inicio = ?, fim = ?, disciplina = ? WHERE id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $agenda->diaSemana,

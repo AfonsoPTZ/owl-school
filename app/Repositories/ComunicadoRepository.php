@@ -40,10 +40,6 @@ class ComunicadoRepository
             "DELETE FROM comunicado WHERE id = ?"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
         $stmt->execute([$id]);
 
         return $stmt->rowCount() > 0;
@@ -55,21 +51,9 @@ class ComunicadoRepository
             "SELECT id, titulo, corpo FROM comunicado ORDER BY id DESC"
         );
 
-        if (!$stmt) {
-            return [];
-        }
+        $stmt->execute();
 
-        if (!$stmt->execute()) {
-            return [];
-        }
-
-        $comunicados = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $comunicados[] = $linha;
-        }
-
-        return $comunicados;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(Comunicado $comunicado): bool
@@ -77,10 +61,6 @@ class ComunicadoRepository
         $stmt = $this->conn->prepare(
             "UPDATE comunicado SET titulo = ?, corpo = ? WHERE id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $comunicado->titulo,

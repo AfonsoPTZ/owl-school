@@ -8,7 +8,7 @@ class AIDTO
 
     public function __construct(array $data)
     {
-        $this->pergunta = trim($data['pergunta'] ?? '');
+        $this->pergunta = $this->string($data['pergunta'] ?? null);
     }
 
     public function toArray(): array
@@ -16,5 +16,10 @@ class AIDTO
         return [
             'pergunta' => $this->pergunta
         ];
+    }
+
+    private function string(?string $value): string
+    {
+        return trim($value ?? '');
     }
 }

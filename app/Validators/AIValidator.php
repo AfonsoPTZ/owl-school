@@ -6,6 +6,7 @@ use App\DTOs\AIDTO;
 
 class AIValidator
 {
+
     public function validateQuestion(AIDTO $dto): array
     {
         if (empty($dto->pergunta)) {

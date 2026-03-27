@@ -1,3 +1,8 @@
+/**
+ * Carrega nome do usuário logado
+ * Requisição: GET /owl-school/api/utils?action=getName
+ * Popula o elemento com id='userName'
+ */
 async function carregarNomeUsuario() {
   const resposta = await fetch("/owl-school/api/utils?action=getName", {
     method: "GET",

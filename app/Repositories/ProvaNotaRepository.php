@@ -13,16 +13,11 @@ class ProvaNotaRepository
         $this->conn = $conn;
     }
 
-    /* ============================== */
-    /* CREATE */
-    /* ============================== */
     public function create(ProvaNota $provaNota): bool
     {
         $stmt = $this->conn->prepare(
             "INSERT INTO prova_nota (prova_id, aluno_id, nota) VALUES (?, ?, ?)"
         );
-
-        if (!$stmt) return false;
 
         return $stmt->execute([
             $provaNota->provaId,
@@ -31,31 +26,20 @@ class ProvaNotaRepository
         ]);
     }
 
-    /* ============================== */
-    /* DELETE */
-    /* ============================== */
     public function delete(int $provaId, int $alunoId): bool
     {
         $stmt = $this->conn->prepare(
             "DELETE FROM prova_nota WHERE prova_id = ? AND aluno_id = ?"
         );
 
-        if (!$stmt) return false;
-
         $stmt->execute([$provaId, $alunoId]);
 
         return $stmt->rowCount() > 0;
     }
 
-    /* ============================== */
-    /* READ / FIND BY PROVA */
-    /* ============================== */
     public function findByProva(int $provaId): array
     {
-        // Buscar o título da prova
         $stmtProva = $this->conn->prepare("SELECT titulo FROM prova WHERE id = ?");
-        if (!$stmtProva) return [];
-
         $stmtProva->execute([$provaId]);
         $titulo_prova = '';
         
@@ -63,7 +47,6 @@ class ProvaNotaRepository
             $titulo_prova = $row['titulo'];
         }
 
-        // Buscar todos os alunos com suas notas (LEFT JOIN para mostrar alunos sem nota também)
         $stmt = $this->conn->prepare(
             "SELECT
                 aluno.usuario_id AS aluno_id,
@@ -78,35 +61,28 @@ class ProvaNotaRepository
             ORDER BY usuario.nome"
         );
 
-        if (!$stmt) return [];
-
         $stmt->execute([$provaId]);
+        $notas = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        $notas = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $linha['titulo_prova'] = $titulo_prova;
-            $notas[] = $linha;
+        foreach ($notas as &$nota) {
+            $nota['titulo_prova'] = $titulo_prova;
         }
 
         return $notas;
     }
 
-    /* ============================== */
-    /* UPDATE */
-    /* ============================== */
     public function update(ProvaNota $provaNota): bool
     {
         $stmt = $this->conn->prepare(
             "UPDATE prova_nota SET nota = ? WHERE prova_id = ? AND aluno_id = ?"
         );
 
-        if (!$stmt) return false;
-
-        return $stmt->execute([
+        $stmt->execute([
             $provaNota->nota,
             $provaNota->provaId,
             $provaNota->alunoId
         ]);
+
+        return $stmt->rowCount() > 0;
     }
 }

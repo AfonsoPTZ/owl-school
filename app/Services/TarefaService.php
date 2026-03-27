@@ -35,18 +35,10 @@ class TarefaService
         $criou = $this->repository->create($tarefa);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar tarefa.',
-                'status'  => 500
-            ];
+            return $this->response(false, 'Erro ao criar tarefa.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Tarefa criada com sucesso.',
-            'status'  => 201
-        ];
+        return $this->response(true, 'Tarefa criada com sucesso.', 201);
     }
 
     public function update(TarefaDTO $dto): array
@@ -67,18 +59,10 @@ class TarefaService
         $atualizou = $this->repository->update($tarefa);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Task not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Tarefa não encontrada para atualização.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Tarefa atualizada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Tarefa atualizada com sucesso.', 200);
     }
 
     public function delete(TarefaDTO $dto): array
@@ -92,18 +76,10 @@ class TarefaService
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return [
-                'success' => false,
-                'message' => 'Task not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Tarefa não encontrada para exclusão.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Tarefa deletada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Tarefa deletada com sucesso.', 200);
     }
 
     public function findAll(): array
@@ -113,7 +89,16 @@ class TarefaService
         return [
             'success' => true,
             'tarefas' => $tarefas,
-            'status'  => 200
+            'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

@@ -30,18 +30,10 @@ class ProvaService
         $criou = $this->repository->create($prova);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar prova.',
-                'status'  => 500
-            ];
+            return $this->response(false, 'Erro ao criar prova.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Prova criada com sucesso.',
-            'status'  => 201
-        ];
+        return $this->response(true, 'Prova criada com sucesso.', 201);
     }
 
     public function update(ProvaDTO $dto): array
@@ -56,18 +48,10 @@ class ProvaService
         $atualizou = $this->repository->update($prova);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Test not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Prova não encontrada para atualização.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Prova atualizada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Prova atualizada com sucesso.', 200);
     }
 
     public function delete(ProvaDTO $dto): array
@@ -81,18 +65,10 @@ class ProvaService
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return [
-                'success' => false,
-                'message' => 'Test not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Prova não encontrada para exclusão.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Prova deletada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Prova deletada com sucesso.', 200);
     }
 
     public function findAll(): array
@@ -102,7 +78,16 @@ class ProvaService
         return [
             'success' => true,
             'provas' => $provas,
-            'status'  => 200
+            'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

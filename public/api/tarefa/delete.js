@@ -1,21 +1,36 @@
-async function excluirTarefa(identificador) {
-  if (!identificador) return;
-  if (!confirm("Tem certeza que deseja excluir?")) return;
-  const resposta = await fetch("/owl-school/api/tarefa", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: identificador })
+async function excluirTarefa(id) {
+  if (!id) {
+    alert("ID da tarefa não informado.");
+    return;
+  }
 
-  });
-  const resultado = await resposta.json();
-  if (resultado.success) {
+  if (!confirm("Tem certeza que deseja excluir?")) {
+    return;
+  }
 
-    alert(resultado.message);
-  if (typeof carregarTarefas === "function") {carregarTarefas();}
+  try {
+    const resposta = await fetch("/owl-school/api/tarefa", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id })
+    });
 
-  } else {
-    alert(resultado.message);
+    const resultado = await resposta.json();
+
+    if (!resultado.success) {
+      alert(resultado.message || "Erro ao excluir tarefa.");
+      return;
+    }
+
+    alert(resultado.message || "Tarefa excluída com sucesso.");
+
+    if (typeof carregarTarefas === "function") {
+      carregarTarefas();
+    }
+  } catch (error) {
+    console.error("Erro ao excluir tarefa:", error);
+    alert("Erro de conexão com o servidor.");
   }
 }
-
-

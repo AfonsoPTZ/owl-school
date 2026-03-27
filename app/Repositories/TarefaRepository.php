@@ -19,35 +19,18 @@ class TarefaRepository
             "INSERT INTO tarefa (titulo, descricao, data_entrega) VALUES (?, ?, ?)"
         );
 
-        if (!$stmt->execute([
+        $executou = $stmt->execute([
             $tarefa->titulo,
             $tarefa->descricao,
             $tarefa->dataEntrega
-        ])) {
+        ]);
+
+        if (!$executou || $stmt->rowCount() === 0) {
             return false;
         }
 
-        if ($stmt->rowCount() > 0) {
-            $tarefa->id = $this->conn->lastInsertId();
-            return true;
-        }
-
-        return false;
-    }
-
-    public function delete(int $id): bool
-    {
-        $stmt = $this->conn->prepare(
-            "DELETE FROM tarefa WHERE id = ?"
-        );
-
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->execute([$id]);
-
-        return $stmt->rowCount() > 0;
+        $tarefa->id = (int) $this->conn->lastInsertId();
+        return true;
     }
 
     public function findAll(): array
@@ -56,32 +39,18 @@ class TarefaRepository
             "SELECT id, titulo, descricao, data_entrega FROM tarefa ORDER BY id DESC"
         );
 
-        if (!$stmt) {
-            return [];
-        }
+        $stmt->execute();
 
-        if (!$stmt->execute()) {
-            return [];
-        }
-
-        $tarefas = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $tarefas[] = $linha;
-        }
-
-        return $tarefas;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(Tarefa $tarefa): bool
     {
         $stmt = $this->conn->prepare(
-            "UPDATE tarefa SET titulo = ?, descricao = ?, data_entrega = ? WHERE id = ?"
+            "UPDATE tarefa
+             SET titulo = ?, descricao = ?, data_entrega = ?
+             WHERE id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $tarefa->titulo,
@@ -89,6 +58,17 @@ class TarefaRepository
             $tarefa->dataEntrega,
             $tarefa->id
         ]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    public function delete(int $id): bool
+    {
+        $stmt = $this->conn->prepare(
+            "DELETE FROM tarefa WHERE id = ?"
+        );
+
+        $stmt->execute([$id]);
 
         return $stmt->rowCount() > 0;
     }

@@ -8,75 +8,68 @@ use App\Services\ChamadaItemService;
 
 class ChamadaItemController extends BaseController
 {
-    private ChamadaItemRepository $repository;
     private ChamadaItemService $service;
 
     public function __construct($conn)
     {
         parent::__construct($conn);
-        $this->repository = new ChamadaItemRepository($conn);
         $this->service = new ChamadaItemService($conn);
     }
 
     public function index(): void
     {
-        try {
+        $this->executeAction(function() {
             $chamadaId = $_GET['chamada_id'] ?? '';
 
             if (empty($chamadaId)) {
-                $this->json([
+                return [
                     'success' => false,
-                    'message' => 'ID de chamada é obrigatório.',
-                    'status'  => 422
-                ], 422);
-                return;
+                    'message' => 'ID de chamada e obrigatorio.',
+                    'status' => 422
+                ];
             }
 
-            $items = $this->repository->findByChamada((int)$chamadaId);
+            $repository = new ChamadaItemRepository($GLOBALS['conn'] ?? null);
+            $items = $repository->findByChamada((int)$chamadaId);
 
-            $this->json([
+            return [
                 'success' => true,
                 'itens' => $items,
-                'status'  => 200
-            ], 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'index');
-        }
+                'status' => 200
+            ];
+        }, 'index');
     }
 
     public function create(): void
     {
-        try {
-            $dto = new ChamadaItemDTO($_POST);
-            $result = $this->service->create($dto);
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'create');
-        }
+        $this->executeWithDto('create');
     }
 
     public function update(): void
     {
-        try {
-            $dto = new ChamadaItemDTO($_POST);
-            $result = $this->service->update($dto);
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'update');
-        }
+        $this->executeWithDto('update');
     }
 
     public function delete(): void
     {
-        try {
-            $dto = new ChamadaItemDTO($_POST);
-            $result = $this->service->delete($dto);
+        $this->executeWithDto('delete');
+    }
 
+    private function executeWithDto(string $action): void
+    {
+        $this->executeAction(function () use ($action) {
+            $dto = new ChamadaItemDTO($_POST);
+            return $this->service->$action($dto);
+        }, $action);
+    }
+
+    private function executeAction(callable $callback, string $action): void
+    {
+        try {
+            $result = $callback();
             $this->json($result, $result['status'] ?? 200);
         } catch (\Throwable $e) {
-            $this->handleException($e, 'delete');
+            $this->handleException($e, $action);
         }
     }
 }

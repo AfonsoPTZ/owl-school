@@ -9,7 +9,12 @@ class AuthDTO
 
     public function __construct(array $data)
     {
-        $this->email = isset($data['email']) ? trim($data['email']) : null;
-        $this->senha = isset($data['senha']) ? trim($data['senha']) : null;
+        $this->email = isset($data['email']) ? $this->string($data['email']) : null;
+        $this->senha = isset($data['senha']) ? $this->string($data['senha']) : null;
+    }
+
+    private function string(?string $value): string
+    {
+        return trim($value ?? '');
     }
 }

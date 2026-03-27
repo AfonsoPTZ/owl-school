@@ -8,12 +8,8 @@ class TarefaValidator
 {
     public function validateCreate(TarefaDTO $dto): array
     {
-        if (empty(trim($dto->titulo ?? '')) || empty(trim($dto->descricao ?? '')) || empty(trim($dto->data_entrega ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->titulo) || $this->isBlank($dto->descricao) || $this->isBlank($dto->data_entrega)) {
+            return $this->error('Preencha todos os campos necessários.');
         }
 
         return $this->validateDate($dto->data_entrega);
@@ -22,19 +18,11 @@ class TarefaValidator
     public function validateUpdate(TarefaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID não fornecido.');
         }
 
-        if (empty(trim($dto->titulo ?? '')) || empty(trim($dto->descricao ?? '')) || empty(trim($dto->data_entrega ?? ''))) {
-            return [
-                'success' => false,
-                'message' => 'Preencha todos os campos necessários.',
-                'status'  => 422
-            ];
+        if ($this->isBlank($dto->titulo) || $this->isBlank($dto->descricao) || $this->isBlank($dto->data_entrega)) {
+            return $this->error('Preencha todos os campos necessários.');
         }
 
         return $this->validateDate($dto->data_entrega);
@@ -43,33 +31,35 @@ class TarefaValidator
     public function validateDelete(TarefaDTO $dto): array
     {
         if (empty($dto->id)) {
-            return [
-                'success' => false,
-                'message' => 'ID não fornecido.',
-                'status'  => 422
-            ];
+            return $this->error('ID não fornecido.');
         }
 
-        return [
-            'success' => true
-        ];
+        return ['success' => true];
     }
 
     private function validateDate(string $date): array
     {
         $format = 'Y-m-d';
-        $d = \DateTime::createFromFormat($format, $date);
+        $parsedDate = \DateTime::createFromFormat($format, $date);
 
-        if (!$d || $d->format($format) !== $date) {
-            return [
-                'success' => false,
-                'message' => 'Formato de data de entrega deve ser YYYY-MM-DD.',
-                'status'  => 422
-            ];
+        if (!$parsedDate || $parsedDate->format($format) !== $date) {
+            return $this->error('Formato de data de entrega deve ser YYYY-MM-DD.');
         }
 
+        return ['success' => true];
+    }
+
+    private function isBlank(?string $value): bool
+    {
+        return empty(trim($value ?? ''));
+    }
+
+    private function error(string $message, int $status = 422): array
+    {
         return [
-            'success' => true
+            'success' => false,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

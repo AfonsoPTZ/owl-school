@@ -1,3 +1,8 @@
+/**
+ * Carrega notas do aluno
+ * Requisição: GET /owl-school/api/utils_aluno?action=getNotas
+ * Popula tabela com id='tbodyNotas'
+ */
 async function carregarNotasAluno() {
   const response = await fetch("/owl-school/api/utils_aluno?action=getNotas", { 
     method: "GET",

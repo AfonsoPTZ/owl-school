@@ -17,30 +17,12 @@ class AuthController extends BaseController
 
     public function login(): void
     {
-        try {
-            $dto = new AuthDTO($_POST);
-            $result = $this->service->login($dto);
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'login');
-        }
+        $this->executeWithDto('login');
     }
 
     public function logout(): void
     {
-        try {
-            $result = $this->service->logout();
-
-            if (($result['redirect'] ?? false) === true) {
-                header('Location: /owl-school/public/index.html');
-                exit;
-            }
-
-            $this->json($result, $result['status'] ?? 200);
-        } catch (\Throwable $e) {
-            $this->handleException($e, 'logout');
-        }
+        $this->executeAction(fn() => $this->service->logout(), 'logout');
     }
 
     public function authme(): void
@@ -64,6 +46,24 @@ class AuthController extends BaseController
             ]);
         } catch (\Throwable $e) {
             $this->handleException($e, 'authme');
+        }
+    }
+
+    private function executeWithDto(string $action): void
+    {
+        $this->executeAction(function () use ($action) {
+            $dto = new AuthDTO($_POST);
+            return $this->service->$action($dto);
+        }, $action);
+    }
+
+    private function executeAction(callable $callback, string $action): void
+    {
+        try {
+            $result = $callback();
+            $this->json($result, $result['status'] ?? 200);
+        } catch (\Throwable $e) {
+            $this->handleException($e, $action);
         }
     }
 }

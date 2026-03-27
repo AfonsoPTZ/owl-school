@@ -4,13 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Utils\Logger;
 
-/**
- * BaseController - Classe base para todos os controllers
- * 
- * Fornece:
- * - json(): Retorna JSON com status HTTP apropriado
- * - handleException(): Tratamento padrão de exceções
- */
+
 class BaseController
 {
     protected ?\PDO $conn;

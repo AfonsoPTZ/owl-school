@@ -30,18 +30,10 @@ class ComunicadoService
         $criou = $this->repository->create($comunicado);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar comunicado.',
-                'status'  => 500
-            ];
+            return $this->response(false, 'Erro ao criar comunicado.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Comunicado criado com sucesso.',
-            'status'  => 201
-        ];
+        return $this->response(true, 'Comunicado criado com sucesso.', 201);
     }
 
     public function update(ComunicadoDTO $dto): array
@@ -56,18 +48,10 @@ class ComunicadoService
         $atualizou = $this->repository->update($comunicado);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Notice not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Comunicado não encontrado para atualização.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Comunicado atualizado com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Comunicado atualizado com sucesso.', 200);
     }
 
     public function delete(ComunicadoDTO $dto): array
@@ -81,18 +65,10 @@ class ComunicadoService
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return [
-                'success' => false,
-                'message' => 'Notice not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Comunicado não encontrado para exclusão.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Comunicado deletado com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Comunicado deletado com sucesso.', 200);
     }
 
     public function findAll(): array
@@ -102,7 +78,16 @@ class ComunicadoService
         return [
             'success' => true,
             'comunicados' => $comunicados,
-            'status'  => 200
+            'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

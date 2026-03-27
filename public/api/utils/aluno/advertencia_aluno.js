@@ -1,3 +1,8 @@
+/**
+ * Carrega advertências do aluno
+ * Requisição: GET /owl-school/api/utils_aluno?action=getAdvertencias
+ * Popula tabela com id='tbodyAdvertencias'
+ */
 async function carregarAdvertencias() {
   const response = await fetch("/owl-school/api/utils_aluno?action=getAdvertencias", { 
     method: "GET",

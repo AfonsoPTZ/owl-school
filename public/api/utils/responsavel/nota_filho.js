@@ -1,3 +1,8 @@
+/**
+ * Carrega notas do filho (para responsável)
+ * Requisição: GET /owl-school/api/utils_responsavel?action=getNotasFilho
+ * Popula tabela com id='tbodyNotas'
+ */
 async function carregarNotasFilhos() {
   const response = await fetch("/owl-school/api/utils_responsavel?action=getNotasFilho", { 
     method: "GET",

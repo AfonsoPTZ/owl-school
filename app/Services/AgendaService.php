@@ -30,18 +30,10 @@ class AgendaService
         $criou = $this->repository->create($agenda);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar agenda.',
-                'status'  => 500
-            ];
+            return $this->response(false, 'Erro ao criar agenda.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Agenda criada com sucesso.',
-            'status'  => 201
-        ];
+        return $this->response(true, 'Agenda criada com sucesso.', 201);
     }
 
     public function update(AgendaDTO $dto): array
@@ -56,18 +48,10 @@ class AgendaService
         $atualizou = $this->repository->update($agenda);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Schedule not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Agenda não encontrada para atualização.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Agenda atualizada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Agenda atualizada com sucesso.', 200);
     }
 
     public function delete(AgendaDTO $dto): array
@@ -81,18 +65,10 @@ class AgendaService
         $deletou = $this->repository->delete((int) $dto->id);
 
         if (!$deletou) {
-            return [
-                'success' => false,
-                'message' => 'Schedule not found.',
-                'status'  => 404
-            ];
+            return $this->response(false, 'Agenda não encontrada para exclusão.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Agenda deletada com sucesso.',
-            'status'  => 200
-        ];
+        return $this->response(true, 'Agenda deletada com sucesso.', 200);
     }
 
     public function findAll(): array
@@ -117,7 +93,16 @@ class AgendaService
         return [
             'success' => true,
             'por_dia' => $porDia,
-            'status'  => 200
+            'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

@@ -1,3 +1,8 @@
+/**
+ * Carrega nome do responsável do aluno
+ * Requisição: GET /owl-school/api/utils_aluno?action=getNomeResponsavel
+ * Popula elemento com id='nomeResponsavel'
+ */
 async function carregarNomeResponsavel() {
   const response = await fetch("/owl-school/api/utils_aluno?action=getNomeResponsavel", {
     method: "GET",

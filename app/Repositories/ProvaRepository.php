@@ -40,10 +40,6 @@ class ProvaRepository
             "DELETE FROM prova WHERE id = ?"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
         $stmt->execute([$id]);
 
         return $stmt->rowCount() > 0;
@@ -55,21 +51,9 @@ class ProvaRepository
             "SELECT id, titulo, data FROM prova ORDER BY data DESC, id DESC"
         );
 
-        if (!$stmt) {
-            return [];
-        }
+        $stmt->execute();
 
-        if (!$stmt->execute()) {
-            return [];
-        }
-
-        $provas = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $provas[] = $linha;
-        }
-
-        return $provas;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(Prova $prova): bool
@@ -77,10 +61,6 @@ class ProvaRepository
         $stmt = $this->conn->prepare(
             "UPDATE prova SET titulo = ?, data = ? WHERE id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $prova->titulo,

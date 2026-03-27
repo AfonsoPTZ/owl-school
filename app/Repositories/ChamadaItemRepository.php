@@ -32,10 +32,6 @@ class ChamadaItemRepository
             "DELETE FROM chamada_item WHERE chamada_id = ? AND aluno_id = ?"
         );
 
-        if (!$stmt) {
-            return false;
-        }
-
         $stmt->execute([$chamadaId, $alunoId]);
 
         return $stmt->rowCount() > 0;
@@ -61,19 +57,9 @@ class ChamadaItemRepository
             ORDER BY usuario.nome"
         );
 
-        if (!$stmt) {
-            return [];
-        }
-
         $stmt->execute([$chamadaId]);
 
-        $items = [];
-
-        while ($linha = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $items[] = $linha;
-        }
-
-        return $items;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function update(ChamadaItem $chamadaItem): bool
@@ -81,10 +67,6 @@ class ChamadaItemRepository
         $stmt = $this->conn->prepare(
             "UPDATE chamada_item SET status = ? WHERE chamada_id = ? AND aluno_id = ?"
         );
-
-        if (!$stmt) {
-            return false;
-        }
 
         $stmt->execute([
             $chamadaItem->status,

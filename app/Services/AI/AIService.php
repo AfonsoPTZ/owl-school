@@ -263,8 +263,6 @@ class AIService
             $role = $userContext['role'] ?? null;
             $userId = $userContext['user_id'] ?? null;
 
-            Logger::info("AIService - fetchNotas: role={$role}, userId={$userId}");
-
             if (!$userId) {
                 return [
                     'success' => false,
@@ -315,8 +313,6 @@ class AIService
                 ? $userContext['student_id'] ?? null
                 : $userContext['user_id'] ?? null;
 
-            Logger::info("AIService - fetchAdvertencias: role={$role}, targetUserId={$targetUserId}");
-
             if (!$targetUserId) {
                 return [
                     'success' => false,
@@ -327,10 +323,8 @@ class AIService
 
             if ($role === 'responsavel') {
                 $items = $this->utilsResponsavelRepository->getAdvertenciasFilho($userContext['user_id']);
-                Logger::info("AIService - fetchAdvertencias responsavel: " . count($items) . " advertências encontradas");
             } else {
                 $items = $this->utilsAlunoRepository->getAdvertencias($targetUserId);
-                Logger::info("AIService - fetchAdvertencias aluno: " . count($items) . " advertências encontradas");
             }
 
             return [
@@ -534,5 +528,104 @@ class AIService
             'intent' => $intentData['intent'] ?? 'desconhecido',
             'status' => 200
         ];
+    }
+
+    /**
+     * Processa a criação de uma tarefa via IA
+     * 
+     * Fluxo:
+     * 1. Extrai dados (titulo, data_entrega, descricao) da pergunta
+     * 2. Se faltar dados obrigatórios, pergunta ao usuário
+     * 3. Se tiver tudo, cria a tarefa no BD
+     * 4. Retorna mensagem de sucesso/erro
+     */
+    private function handleCreateTarefa(string $pergunta): array
+    {
+        try {
+            // 1️⃣ Extrai dados da pergunta usando IA
+            $extractionResult = $this->tarefaExtractor->extract($pergunta);
+
+            if (!$extractionResult['success']) {
+                return [
+                    'success' => false,
+                    'message' => 'Erro ao processar sua solicitação.',
+                    'status' => 400
+                ];
+            }
+
+            $data = $extractionResult['data'];
+            $missingFields = $extractionResult['missing_fields'] ?? [];
+
+            // 2️⃣ Verifica se faltam campos obrigatórios
+            if (!empty($missingFields)) {
+                $fieldNames = match ($missingFields) {
+                    ['titulo'] => 'o título da tarefa',
+                    ['data_entrega'] => 'a data de entrega',
+                    ['titulo', 'data_entrega'] => 'o título e a data de entrega',
+                    default => implode(' e ', $missingFields)
+                };
+                
+                return [
+                    'success' => true,
+                    'message' => "Entendi que você quer criar uma tarefa. Para finalizar, por favor informe {$fieldNames}.",
+                    'intent' => 'criar_tarefa',
+                    'status' => 200,
+                    'waiting_for' => $missingFields
+                ];
+            }
+
+            // 3️⃣ Se temos título e data_entrega, cria a tarefa
+            $tarefaDTO = new \App\DTOs\TarefaDTO([
+                'titulo' => $data['titulo'],
+                'descricao' => $data['descricao'] ?? '',
+                'data_entrega' => $data['data_entrega']
+            ]);
+
+            // Valida DTO
+            $validator = new \App\Validators\TarefaValidator();
+            $validacao = $validator->validateCreate($tarefaDTO);
+
+            if (!$validacao['success']) {
+                return [
+                    'success' => false,
+                    'message' => $validacao['message'],
+                    'status' => 400
+                ];
+            }
+
+            // Cria objeto Tarefa
+            $tarefa = new \App\Models\Tarefa(
+                $tarefaDTO->titulo,
+                $tarefaDTO->descricao,
+                $tarefaDTO->data_entrega
+            );
+
+            // Insere no BD
+            $criou = $this->tarefaRepository->create($tarefa);
+
+            if (!$criou) {
+                return [
+                    'success' => false,
+                    'message' => 'Erro ao criar tarefa no sistema.',
+                    'status' => 500
+                ];
+            }
+
+            // 4️⃣ Retorna sucesso
+            return [
+                'success' => true,
+                'message' => "✅ Tarefa '{$tarefaDTO->titulo}' criada com sucesso! Entrega em {$tarefaDTO->data_entrega}.",
+                'intent' => 'criar_tarefa',
+                'status' => 201
+            ];
+        } catch (\Throwable $e) {
+            Logger::error('AIService::handleCreateTarefa - ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => 'Erro ao criar tarefa.',
+                'status' => 500
+            ];
+        }
     }
 }

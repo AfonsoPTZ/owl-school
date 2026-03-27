@@ -18,8 +18,8 @@ class ProvaNotaService
 
     public function create(ProvaNotaDTO $dto): array
     {
-        $validator = new ProvaNotaValidator($dto);
-        $validacao = $validator->validateCreate();
+        $validator = new ProvaNotaValidator();
+        $validacao = $validator->validateCreate($dto);
 
         if (!$validacao['success']) {
             return $validacao;
@@ -29,51 +29,16 @@ class ProvaNotaService
         $criou = $this->repository->create($provaNota);
 
         if (!$criou) {
-            return [
-                'success' => false,
-                'message' => 'Erro ao criar nota.',
-                'status' => 500
-            ];
+            return $this->response(false, 'Erro ao criar nota.', 500);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Nota criada com sucesso.',
-            'status' => 201
-        ];
-    }
-
-    public function findAll(): array
-    {
-        return [
-            'success' => true,
-            'message' => 'FindAll não implementado para ProvaNota. Use findByProva.',
-            'status' => 200
-        ];
-    }
-
-    public function findByProva(int $provaId): array
-    {
-        $notas = $this->repository->findByProva($provaId);
-
-        // Extrair titulo_prova da primeira nota se existir
-        $titulo_prova = '';
-        if (!empty($notas)) {
-            $titulo_prova = $notas[0]['titulo_prova'] ?? '';
-        }
-
-        return [
-            'success' => true,
-            'titulo_prova' => $titulo_prova,
-            'notas' => $notas,
-            'status' => 200
-        ];
+        return $this->response(true, 'Nota criada com sucesso.', 201);
     }
 
     public function update(ProvaNotaDTO $dto): array
     {
-        $validator = new ProvaNotaValidator($dto);
-        $validacao = $validator->validateUpdate();
+        $validator = new ProvaNotaValidator();
+        $validacao = $validator->validateUpdate($dto);
 
         if (!$validacao['success']) {
             return $validacao;
@@ -83,24 +48,16 @@ class ProvaNotaService
         $atualizou = $this->repository->update($provaNota);
 
         if (!$atualizou) {
-            return [
-                'success' => false,
-                'message' => 'Nota não encontrada.',
-                'status' => 404
-            ];
+            return $this->response(false, 'Nota nao encontrada para atualizacao.', 404);
         }
 
-        return [
-            'success' => true,
-            'message' => 'Nota atualizada com sucesso.',
-            'status' => 200
-        ];
+        return $this->response(true, 'Nota atualizada com sucesso.', 200);
     }
 
     public function delete(ProvaNotaDTO $dto): array
     {
-        $validator = new ProvaNotaValidator($dto);
-        $validacao = $validator->validateDelete();
+        $validator = new ProvaNotaValidator();
+        $validacao = $validator->validateDelete($dto);
 
         if (!$validacao['success']) {
             return $validacao;
@@ -109,17 +66,40 @@ class ProvaNotaService
         $deletou = $this->repository->delete((int) $dto->provaId, (int) $dto->alunoId);
 
         if (!$deletou) {
+            return $this->response(false, 'Nota nao encontrada para exclusao.', 404);
+        }
+
+        return $this->response(true, 'Nota deletada com sucesso.', 200);
+    }
+
+    public function findByProva(int $provaId): array
+    {
+        $notas = $this->repository->findByProva($provaId);
+
+        if (empty($notas)) {
             return [
                 'success' => false,
-                'message' => 'Nota não encontrada.',
+                'message' => 'Nenhuma nota encontrada para esta prova.',
                 'status' => 404
             ];
         }
 
+        $titulo_prova = $notas[0]['titulo_prova'] ?? '';
+
         return [
             'success' => true,
-            'message' => 'Nota deletada com sucesso.',
+            'titulo_prova' => $titulo_prova,
+            'notas' => $notas,
             'status' => 200
+        ];
+    }
+
+    private function response(bool $success, string $message, int $status): array
+    {
+        return [
+            'success' => $success,
+            'message' => $message,
+            'status' => $status
         ];
     }
 }

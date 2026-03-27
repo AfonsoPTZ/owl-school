@@ -1,42 +1,87 @@
 let idDaProvaAtual = null;
-  async function editarProva(idProva) {
 
+async function editarProva(idProva) {
   idDaProvaAtual = idProva;
+
   const elementoModal = document.getElementById("editModalProva");
-  const modal = new bootstrap.Modal(elementoModal);
-  modal.show();
-  const resposta = await fetch("/owl-school/api/prova", { method: "GET" });
-  const dados = await resposta.json();
-  const prova = dados.provas.find(prova => String(prova.id) === String(idProva));
 
-  document.getElementById("edit_titulo_prova").value = prova.titulo;
-  document.getElementById("edit_data_prova").value   = prova.data;
-}
-  async function salvarProva() {
-  const titulo = document.getElementById("edit_titulo_prova").value;
-  const data   = document.getElementById("edit_data_prova").value;
-  const resposta = await fetch("/owl-school/api/prova", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: idDaProvaAtual,
-      titulo,
-      data
-    })
-  });
-  const resultado = await resposta.json();
-  if (resultado.success) {
+  if (!elementoModal) {
+    console.error("Modal de edição não encontrado.");
+    return;
+  }
 
-    alert(resultado.message);
-  if (typeof carregarProvas === "function") {carregarProvas();}
-  const modal = bootstrap.Modal.getInstance(document.getElementById("editModalProva"));
-    modal.hide();
+  try {
+    const resposta = await fetch("/owl-school/api/prova", {
+      method: "GET"
+    });
 
-  } else {
-    alert(resultado.message);
+    const dados = await resposta.json();
+    const prova = dados.provas.find(p => String(p.id) === String(idProva));
+
+    if (!prova) {
+      alert("Prova não encontrada.");
+      return;
+    }
+
+    document.getElementById("edit_titulo_prova").value = prova.titulo;
+    document.getElementById("edit_data_prova").value = prova.data;
+
+    const modal = new bootstrap.Modal(elementoModal);
+    modal.show();
+  } catch (error) {
+    console.error("Erro ao carregar dados da prova:", error);
+    alert("Erro ao carregar a prova para edição.");
   }
 }
 
-document.getElementById("btnSalvarProva").addEventListener("click", salvarProva);
+async function salvarProva() {
+  const titulo = document.getElementById("edit_titulo_prova").value.trim();
+  const data = document.getElementById("edit_data_prova").value;
+
+  if (!idDaProvaAtual) {
+    alert("Nenhuma prova selecionada para edição.");
+    return;
+  }
+
+  if (!titulo || !data) {
+    alert("Preencha todos os campos antes de salvar.");
+    return;
+  }
+
+  try {
+    const resposta = await fetch("/owl-school/api/prova", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: idDaProvaAtual,
+        titulo,
+        data
+      })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resultado.success) {
+      alert(resultado.message || "Erro ao salvar prova.");
+      return;
+    }
+
+    alert(resultado.message || "Prova atualizada com sucesso.");
+
+    if (typeof carregarProvas === "function") {
+      carregarProvas();
+    }
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById("editModalProva"));
+    modal.hide();
+  } catch (error) {
+    console.error("Erro ao salvar prova:", error);
+    alert("Erro de conexão com o servidor.");
+  }
+}
+
+document.getElementById("btnSalvarProva")?.addEventListener("click", salvarProva);
 
 

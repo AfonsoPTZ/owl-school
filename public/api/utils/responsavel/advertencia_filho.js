@@ -1,3 +1,8 @@
+/**
+ * Carrega advertências do filho (para responsável)
+ * Requisição: GET /owl-school/api/utils_responsavel?action=getAdvertenciasFilho
+ * Popula tabela com id='tbodyAdvertencias'
+ */
 async function carregarAdvertencias() {
   const response = await fetch("/owl-school/api/utils_responsavel?action=getAdvertenciasFilho", { 
     method: "GET",

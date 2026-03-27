@@ -1,41 +1,98 @@
 let idDoComunicadoAtual = null;
-  async function editarComunicado(idComunicado) {
+
+async function editarComunicado(idComunicado) {
+  if (!idComunicado) {
+    console.error("ID do comunicado não informado.");
+    return;
+  }
 
   idDoComunicadoAtual = idComunicado;
+
   const elementoModal = document.getElementById("editModalComunicado");
-  const modal = new bootstrap.Modal(elementoModal);
-  modal.show();
-  const resposta = await fetch("/owl-school/api/comunicado", { method: "GET" });
-  const dados = await resposta.json();
-  const comunicado = dados.comunicados.find(comunicado => String(comunicado.id) === String(idComunicado));
 
-  document.getElementById("edit_titulo").value = comunicado.titulo;
-  document.getElementById("edit_corpo").value  = comunicado.corpo;
-}
-  async function salvarComunicado() {
-  const titulo = document.getElementById("edit_titulo").value;
-  const corpo  = document.getElementById("edit_corpo").value;
-  const resposta = await fetch("/owl-school/api/comunicado", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: idDoComunicadoAtual,
-      titulo,
-      corpo
-    })
-  });
-  const resultado = await resposta.json();
-  if (resultado.success) {
+  if (!elementoModal) {
+    console.error("Modal de edição não encontrado.");
+    return;
+  }
 
-    alert("Comunicado atualizado com sucesso!");
-  if (typeof carregarComunicados === "function") {carregarComunicados();}
-  const modal = bootstrap.Modal.getInstance(document.getElementById("editModalComunicado"));
-    modal.hide();
+  try {
+    const resposta = await fetch("/owl-school/api/comunicado", { method: "GET" });
 
-  } else {
-    alert(resultado.message);
+    if (!resposta.ok) {
+      alert("Erro ao carregar comunicado.");
+      return;
+    }
+
+    const dados = await resposta.json();
+
+    if (!dados.comunicados || !dados.comunicados.length) {
+      alert("Nenhum comunicado encontrado.");
+      return;
+    }
+
+    const comunicado = dados.comunicados.find((com) => String(com.id) === String(idComunicado));
+
+    if (!comunicado) {
+      alert("Comunicado não encontrado.");
+      return;
+    }
+
+    document.getElementById("edit_titulo").value = comunicado.titulo || "";
+    document.getElementById("edit_corpo").value = comunicado.corpo || "";
+
+    const modal = new bootstrap.Modal(elementoModal);
+    modal.show();
+  } catch (error) {
+    console.error("Erro ao abrir modal de edição:", error);
+    alert("Erro ao carregar comunicado.");
   }
 }
 
-document.getElementById("btnSalvarComunicado").addEventListener("click", salvarComunicado);
+async function salvarComunicado() {
+  const titulo = document.getElementById("edit_titulo").value.trim();
+  const corpo = document.getElementById("edit_corpo").value.trim();
+
+  if (!titulo || !corpo) {
+    alert("Preencha todos os campos antes de salvar.");
+    return;
+  }
+
+  if (!idDoComunicadoAtual) {
+    alert("ID do comunicado não informado.");
+    return;
+  }
+
+  try {
+    const resposta = await fetch("/owl-school/api/comunicado", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: idDoComunicadoAtual,
+        titulo,
+        corpo
+      })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resultado.success) {
+      alert(resultado.message || "Erro ao salvar comunicado.");
+      return;
+    }
+
+    alert(resultado.message || "Comunicado atualizado com sucesso.");
+
+    if (typeof carregarComunicados === "function") {
+      carregarComunicados();
+    }
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById("editModalComunicado"));
+    modal.hide();
+  } catch (error) {
+    console.error("Erro ao salvar comunicado:", error);
+    alert("Erro de conexão com o servidor.");
+  }
+}
+
+document.getElementById("btnSalvarComunicado")?.addEventListener("click", salvarComunicado);
 
